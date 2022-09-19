@@ -69,8 +69,8 @@ abstract class Response implements ResponseInterface
     {
         $results = [];
         foreach ($this->headers as $key => $value) {
-            if(strpos($key, $name) !== false) {
-                $results[$key] = $value;
+            if(strpos(strtolower(trim($key)), strtolower(trim($name))) !== false) {
+                $results[strtolower(trim($key))] = $value;
             }
         }
         return $results;
@@ -80,8 +80,8 @@ abstract class Response implements ResponseInterface
     {
         $results = [];
         foreach ($this->headers as $key => $value) {
-            if(strpos($key, $name) !== false) {
-                $results[] = $key.': '.$value;
+            if(strpos(strtolower(trim($key)), strtolower(trim($name))) !== false) {
+                $results[] = strtolower(trim($key)).': '.$value;
             }
         }
         return !empty($results) ? implode("\n", $results) : '';

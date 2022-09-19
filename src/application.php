@@ -3,6 +3,8 @@ namespace App;
 
 use App\Responses\ResponseInterface;
 use DI\Container;
+use Monolog\Logger;
+use Psr\Log\LoggerInterface;
 
 class Application 
 {
@@ -18,6 +20,26 @@ class Application
         return $this->container;
     }
 
+    public function log() : Logger
+    {
+        return $this->container->get(LoggerInterface::class);
+    }
+
+    public function getConfig(): array
+    {
+        return $this->container->get('settings');
+    }
+
+    public function getRouter()
+    {
+        return $this->container->get('Router');
+    }
+
+    /**
+     * run application
+     *
+     * @return void
+     */
     public function run()
     {
         // Fetch method and URI from somewhere
@@ -30,10 +52,8 @@ class Application
         }
         $uri = rawurldecode($uri);
 
-        $dispatcher = $this->container->get('Router');
-
-        [$route, $handler, $vars] = $dispatcher->dispatch($httpMethod, $uri);
-        switch ($route) {
+        $routeInfo = $this->getRouter()->dispatch($httpMethod, $uri);
+        switch ($routeInfo[0]) {
             case \FastRoute\Dispatcher::NOT_FOUND:
                 echo '404 Not Found';
 
@@ -42,7 +62,7 @@ class Application
                 echo '405 Method Not Allowed';
                 break;
             case \FastRoute\Dispatcher::FOUND:
-                echo $this->makeResponse($handler, $vars);
+                echo $this->makeResponse($routeInfo[1], $routeInfo[2] ?? []);
                 break;
         }
     }

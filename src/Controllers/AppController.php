@@ -1,6 +1,7 @@
 <?php
 namespace App\Controllers;
 use App\Application;
+use Monolog\Logger;
 
 class AppController extends Controller
 {
@@ -9,6 +10,14 @@ class AppController extends Controller
         parent::__construct($app);
     }
 
+    public function getLog() : Logger
+    {
+        return $this->app->log();
+    }
 
+    public function settings() : array
+    {
+        return $this->app->getConfig();
+    }
 }
 ?>

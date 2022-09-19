@@ -17,6 +17,7 @@
         "guzzlehttp/guzzle": "^7.5",
         "firebase/php-jwt": "^6.3",
         "league/plates": "^3.4",
-        "cakephp/orm": "^4.4"
+        "cakephp/orm": "^4.4",
+        "monolog/monolog": "^3.2"
     }
 }

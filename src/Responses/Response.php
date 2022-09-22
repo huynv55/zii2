@@ -35,7 +35,7 @@ abstract class Response implements ResponseInterface
     public function __construct()
     {
         $this->body = null;
-        $this->headers = [];
+        $this->headers = app()->getResponseHeaders();
         $this->statusCode = 200;
     }
 
@@ -113,13 +113,13 @@ abstract class Response implements ResponseInterface
         return $this;
     }
 
-    public function send(): string
+    public function send()
     {
         http_response_code($this->statusCode);
         foreach ($this->headers as $key => $value) {
             header($key.': '.$value);
         }
-        return '';
+        die();
     }
 }
 

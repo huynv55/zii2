@@ -1,26 +1,20 @@
 <?php
 namespace App\Controllers\Home;
 
-use App\Application;
 use App\Controllers\AppController;
 use App\Requests\Request;
 use App\Responses\ResponseHTML;
 
 class IndexAction extends AppController
 {
-    protected Request $request;
-    protected ResponseHTML $response;
-
-    public function __construct(Application $app, Request $request , ResponseHTML $response)
+    public function __construct()
     {
-        parent::__construct($app);
-        $this->request = $request;
-        $this->response = $response;
+        app()->middleware('app');
     }
 
-    public function response()
+    public function __invoke(Request $request , ResponseHTML $response)
     {
-        return $this->response
+        return $response
                     ->setViewRender('home')
                     ->send();
     }

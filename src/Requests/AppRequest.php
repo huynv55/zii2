@@ -1,6 +1,7 @@
 <?php
 namespace App\Requests;
 
+
 abstract class AppRequest implements RequestInterface
 {
     protected array $headers;

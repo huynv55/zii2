@@ -5,10 +5,6 @@ use Monolog\Logger;
 
 class AppController extends Controller
 {
-    public function __construct(Application $app)
-    {
-        parent::__construct($app);
-    }
 
     public function getLog() : Logger
     {

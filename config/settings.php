@@ -1,5 +1,7 @@
 <?php
 use Monolog\Level;
+use App\Middlewares\AppMiddleware;
+use App\Middlewares\CorsMiddleware;
 
 return [
     'app_env' => 'local',
@@ -12,5 +14,12 @@ return [
         'path' => __DIR__ . '/../tmp/logs/app.log',
         'level' => Level::Debug,
     ],
+
+    'middlewares' => [
+        'app' => [
+            AppMiddleware::class,
+            CorsMiddleware::class
+        ]
+    ]
 ];
 ?>

@@ -33,14 +33,14 @@ class ResponseHTML extends Response
         $this->template->loadExtension(new DateHelper());
     }
 
-    public function send(): string
+    public function send()
     {
-        $content = parent::send();
         $resources = [];
         if(!is_null($this->body)) {
             $resources = $this->body->toArray();
         }
-        return $this->template->render($this->view, array_merge($resources, $this->data));
+        echo $this->template->render($this->view, array_merge($resources, $this->data));
+        parent::send();
     }
 
     public function withData(array $data) : ResponseHTML

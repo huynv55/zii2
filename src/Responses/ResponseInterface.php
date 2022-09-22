@@ -147,8 +147,7 @@ interface ResponseInterface
     /**
      * action send response to client
      *
-     * @return string
      */
-    public function send(): string;
+    public function send();
 }
 ?>

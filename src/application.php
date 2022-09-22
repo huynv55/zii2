@@ -1,7 +1,6 @@
 <?php
 namespace App;
 
-use App\Responses\ResponseInterface;
 use DI\Container;
 use Monolog\Logger;
 use Psr\Log\LoggerInterface;
@@ -9,10 +8,44 @@ use Psr\Log\LoggerInterface;
 class Application 
 {
     protected Container $container;
+    protected array $attributes;
+    protected array $responseHeaders;
 
     public function __construct(Container $container)
     {
         $this->container = $container;
+        $this->attributes = [];
+        $this->responseHeaders = [];
+    }
+
+    public function setResponseHeader(string $header, string $value)
+    {
+        $this->responseHeaders[$header] = $value;
+    }
+
+    public function getResponseHeader(string $header) : string
+    {
+        return $this->responseHeaders[$header];
+    }
+
+    public function getResponseHeaders() : array
+    {
+        return $this->responseHeaders;
+    }
+
+    public function setAttribute(string $attribute, mixed $value)
+    {
+        $this->attributes[$attribute] = $value;
+    }
+
+    public function getAttribute(string $attribute) : mixed
+    {
+        return $this->attributes[$attribute] ?? null;
+    }
+
+    public function getAttributes() : array
+    {
+        return $this->attributes;
     }
 
     public function getContainer() : Container
@@ -33,6 +66,53 @@ class Application
     public function getRouter()
     {
         return $this->container->get('Router');
+    }
+
+    public function middleware($middleware)
+    {
+        $settings = $this->getConfig();
+
+        if(is_array($middleware))
+        {
+            foreach($middleware as $m) {
+                if(!empty($settings['middlewares'][$m]))
+                {
+                    if(is_string($settings['middlewares'][$m]))
+                    {
+                        if(!$this->getContainer()->call($settings['middlewares'][$m].'::handle'))
+                        {
+                            break;
+                        }
+                    } else if(is_array($settings['middlewares'][$m]))
+                    {
+                        foreach($settings['middlewares'][$m] as $h)
+                        {
+                            if(is_string($h)) {
+                                if(!$this->getContainer()->call($h.'::handle'))
+                                {
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } else if(is_string($middleware)) {
+            if(is_string($settings['middlewares'][$middleware])) {
+                $this->getContainer()->call($settings['middlewares'][$middleware].'::handle');
+            } else if(is_array($settings['middlewares'][$middleware]))
+            {
+                foreach($settings['middlewares'][$middleware] as $h)
+                {
+                    if(is_string($h)) {
+                        if(!$this->getContainer()->call($h.'::handle'))
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -56,36 +136,21 @@ class Application
         switch ($routeInfo[0]) {
             case \FastRoute\Dispatcher::NOT_FOUND:
                 echo '404 Not Found';
-
+                die();
                 break;
             case \FastRoute\Dispatcher::METHOD_NOT_ALLOWED:
                 echo '405 Method Not Allowed';
+                die();
                 break;
             case \FastRoute\Dispatcher::FOUND:
-                echo $this->makeResponse($routeInfo[1], $routeInfo[2] ?? []);
+                $this->makeResponse($routeInfo[1], $routeInfo[2] ?? []);
                 break;
         }
     }
 
     public function makeResponse($handler, array $vars = [])
     {
-        if(is_string($handler)) {
-            $handler = explode('::', $handler);
-        }
-        if(is_array($handler)) {
-            if(count($handler) == 2) {
-                $controller = $this->container->make($handler[0]);
-                return call_user_func_array(array($controller, $handler[1]), $vars);
-            } else if(count($handler) == 1) {
-                $controller = $this->container->make($handler[0]);
-                return call_user_func_array(array($controller, 'response'), $vars);
-            } else {
-                return json_encode($handler);
-            }   
-        } else {
-            return $handler;
-        }
-        
+        $this->container->call($handler, $vars);
     }
 }
 

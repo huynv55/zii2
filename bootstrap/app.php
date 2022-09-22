@@ -9,5 +9,8 @@ $dependencies = require __DIR__."/../config/dependencies.php";
 $builder->addDefinitions($dependencies);
 $container = $builder->build();
 
-return $container->get(Application::class);
+$GLOBALS[CONTAINER_NAME] = $container;
+$GLOBALS[APPLICATION_NAME] = $container->get(Application::class);
+
+return $GLOBALS['app'];
 ?>

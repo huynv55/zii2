@@ -4,8 +4,8 @@
  * 
  * @var \FastRoute\RouteCollector $router
  */
-use App\Controllers\Home\IndexAction as HomeIndexAction;
+use App\Routes\AppRoute;
 
-$router->get('/', HomeIndexAction::class);
+$router = (new AppRoute($router))->dispatch();
 
 ?>

@@ -6,8 +6,6 @@ use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Monolog\Processor\UidProcessor;
 use Psr\Log\LoggerInterface;
-use Cycle\Database;
-use Cycle\Database\Config as DbConfig;
 
 $settings = require __DIR__."/settings.php";
 
@@ -35,32 +33,16 @@ return [
 
         return $logger;
     },
-    Database\DatabaseManager::class => function(Container $c) {
+    NotORM::class => function(Container $c) {
         $settings = $c->get('settings');
-        $dbConfig = new DbConfig\DatabaseConfig([
-            'default' => 'default',
-            'databases' => [
-                'default' => [
-                    'connection' => 'mysql'
-                ]
-            ],
-            'connections' => [
-                'mysql' => new DbConfig\MySQLDriverConfig(
-                    connection: new DbConfig\MySQL\TcpConnectionConfig(
-                        $settings['database']['mysql']['db'],
-                        $settings['database']['mysql']['host'],
-                        $settings['database']['mysql']['port'],
-                        $settings['database']['mysql']['charset'],
-                        $settings['database']['mysql']['user'],
-                        $settings['database']['mysql']['password'],
-                        []
-                    ),
-                    queryCache: true,
-                ),
-            ]
-        ]);
-        
-        return (new Database\DatabaseManager($dbConfig));
+        $mysql = $settings['database']['mysql'];
+        $dsn = "mysql:host=". $mysql['host'] .";port=". $mysql['port'].";dbname=".$mysql['db'].";charset=utf8mb4";
+        $opts[\PDO::MYSQL_ATTR_INIT_COMMAND] = "SET NAMES 'utf8mb4';";
+        $connection = new \PDO($dsn, $mysql['user'], $mysql['password'], $opts);
+        $connection->setAttribute(\PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $connection->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+        $notorm = new NotORM($connection);
+        return $notorm;
     }
 ];
 ?>

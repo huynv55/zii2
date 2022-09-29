@@ -18,8 +18,9 @@
         "firebase/php-jwt": "^6.3",
         "league/plates": "^3.4",
         "monolog/monolog": "^3.2",
-        "cycle/orm": "^2.2",
-        "cycle/annotated": "^3.2",
-        "vlucas/phpdotenv": "^5.4"
+        "vlucas/phpdotenv": "^5.4",
+        "symfony/var-dumper": "^6.1",
+        "mongodb/mongodb": "^1.12",
+        "phpmailer/phpmailer": "^6.6"
     }
 }

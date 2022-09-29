@@ -6,6 +6,8 @@ use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Monolog\Processor\UidProcessor;
 use Psr\Log\LoggerInterface;
+use Cycle\Database;
+use Cycle\Database\Config as DbConfig;
 
 $settings = require __DIR__."/settings.php";
 
@@ -32,6 +34,33 @@ return [
         $logger->pushHandler($handler);
 
         return $logger;
+    },
+    Database\DatabaseManager::class => function(Container $c) {
+        $settings = $c->get('settings');
+        $dbConfig = new DbConfig\DatabaseConfig([
+            'default' => 'default',
+            'databases' => [
+                'default' => [
+                    'connection' => 'mysql'
+                ]
+            ],
+            'connections' => [
+                'mysql' => new DbConfig\MySQLDriverConfig(
+                    connection: new DbConfig\MySQL\TcpConnectionConfig(
+                        $settings['database']['mysql']['db'],
+                        $settings['database']['mysql']['host'],
+                        $settings['database']['mysql']['port'],
+                        $settings['database']['mysql']['charset'],
+                        $settings['database']['mysql']['user'],
+                        $settings['database']['mysql']['password'],
+                        []
+                    ),
+                    queryCache: true,
+                ),
+            ]
+        ]);
+        
+        return (new Database\DatabaseManager($dbConfig));
     }
 ];
 ?>

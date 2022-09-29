@@ -21,6 +21,7 @@ class ResponseHTML extends Response
         $this->initTemplate();
         $this->headers['content-type'] = 'text/html;charset=UTF-8';
         $this->data = [];
+        $this->data['settings'] = app()->getConfig();
         $this->view = '';
     }
 

@@ -24,7 +24,7 @@ return [
             'password' => env('MYSQL_PASSWORD'),
             'port' => env('MYSQL_PORT'),
             'db' => env('MYSQL_DB'),
-            'charset' => env('MYSQL_CHARSET', 'utf8')
+            'charset' => env('MYSQL_CHARSET', 'utf8mb4')
         ]
     ],
     'middlewares' => [

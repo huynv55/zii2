@@ -33,15 +33,18 @@ return [
 
         return $logger;
     },
-    NotORM::class => function(Container $c) {
+    \PDO::class => function(Container $c) {
         $settings = $c->get('settings');
         $mysql = $settings['database']['mysql'];
-        $dsn = "mysql:host=". $mysql['host'] .";port=". $mysql['port'].";dbname=".$mysql['db'].";charset=utf8mb4";
+        $dsn = "mysql:host=". $mysql['host'] .";port=". $mysql['port'].";dbname=".$mysql['db'].";charset=".$mysql['charset'];
         $opts[\PDO::MYSQL_ATTR_INIT_COMMAND] = "SET NAMES 'utf8mb4';";
         $connection = new \PDO($dsn, $mysql['user'], $mysql['password'], $opts);
         $connection->setAttribute(\PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $connection->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-        $notorm = new NotORM($connection);
+        return $connection;
+    },
+    NotORM::class => function(Container $c) {
+        $pdo = $c->get(\PDO::class);
+        $notorm = new NotORM($pdo);
         return $notorm;
     }
 ];

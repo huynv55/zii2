@@ -20,15 +20,17 @@ class User extends Entity
     public ?string $deleted_at;
     public ?string $meta_data;
 
+    const PRIMARY_KEY = 'id';
+
     public function primaryKey()
     {
-        return 'id';    
+        return self::PRIMARY_KEY;    
     }
 
     public function toArray(): array
     {
         return [
-            'id' => $this->id,
+            self::PRIMARY_KEY => $this->{self::PRIMARY_KEY},
             'email' => $this->email,
             'username' => $this->username,
             'status' => $this->status,

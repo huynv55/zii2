@@ -11,6 +11,12 @@ abstract class AppModel implements ModelInterface
     protected array $query;
     protected array $columns = [];
 
+    public function find() : self
+    {
+        $this->query = [];
+        return $this;
+    }
+
     /**
      * select list fields results
      *
@@ -71,6 +77,7 @@ abstract class AppModel implements ModelInterface
         // update entity
         if(!empty($primaryValue)) 
         {
+            $params['updated_at'] = date('Y-m-d H:i:s');
             $query[] = "SET";
             $fields = [];
             foreach ($columns as $key => $column) {
@@ -88,13 +95,15 @@ abstract class AppModel implements ModelInterface
         
         // insert entity
         {
+            $params['created_at'] = date('Y-m-d H:i:s');
+            $params['updated_at'] = date('Y-m-d H:i:s');
             $fields1 = [];
             $fields2 = [];
             foreach ($columns as $key => $column) {
                 if($column != $entity->primaryKey())
                 {
                     $fields1[] = "`".$column."`";
-                    $fields2[] = ":".$column."`";
+                    $fields2[] = ":".$column;
                 }
             }
             $query[] = "(".implode(", ", $fields1).")";

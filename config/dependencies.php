@@ -41,11 +41,6 @@ return [
         $connection = new \PDO($dsn, $mysql['user'], $mysql['password'], $opts);
         $connection->setAttribute(\PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         return $connection;
-    },
-    NotORM::class => function(Container $c) {
-        $pdo = $c->get(\PDO::class);
-        $notorm = new NotORM($pdo);
-        return $notorm;
     }
 ];
 ?>

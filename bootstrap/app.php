@@ -1,8 +1,6 @@
 <?php
 use App\Application;
 
-require __DIR__."/include/NotORM.php";
-
 $builder = new \DI\ContainerBuilder();
 //$builder->useAutowiring(false);
 //$builder->useAnnotations(false);

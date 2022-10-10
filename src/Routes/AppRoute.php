@@ -17,6 +17,7 @@ class AppRoute extends Route
     private function home()
     {
         $this->route->get('/', HomeIndexAction::class);
+        $this->route->post('/post', HomeIndexAction::class);
     }
 
     public function getUrlRouteHome()

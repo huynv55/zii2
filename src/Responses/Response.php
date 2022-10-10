@@ -1,16 +1,8 @@
 <?php
 namespace App\Responses;
-use App\Resources\ResourceInterface;
 
 abstract class Response implements ResponseInterface
 {
-    /**
-     * instance with the specified message body response.
-     *
-     * @var ResourceInterface
-     */
-    protected ?ResourceInterface $body;
-
     /**
      * all message header values response
      *
@@ -32,11 +24,14 @@ abstract class Response implements ResponseInterface
      */
     protected int $statusCode;
 
+    protected string $content;
+
     public function __construct()
     {
         $this->body = null;
         $this->headers = app()->getResponseHeaders();
         $this->statusCode = 200;
+        $this->content = '';
     }
 
     public function getStatusCode() : int
@@ -102,23 +97,27 @@ abstract class Response implements ResponseInterface
         return $this;
     }
 
-    public function getBody(): ?ResourceInterface
+    public function getBody(): ?string
     {
-        return $this->body;
+        return $this->content;
     }
 
-    public function setBody(?ResourceInterface $body = null) : ResponseInterface
+    public function setBody(?string $body) : ResponseInterface
     {
-        $this->body = $body;
+        $this->content = $body;
         return $this;
     }
 
     public function send()
     {
         http_response_code($this->statusCode);
-        foreach ($this->headers as $key => $value) {
-            header($key.': '.$value);
+        if(!headers_sent())
+        {
+            foreach ($this->headers as $key => $value) {
+                header($key.': '.$value);
+            }
         }
+        echo $this->content;
         die();
     }
 }

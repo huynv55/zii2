@@ -14,7 +14,7 @@ class ResponseJSON extends Response
     public function send(): string
     {
         $content = $this->body->toArray();
-        echo json_encode($content);
+        $this->content = json_encode($content);
         parent::send();
     }
 }

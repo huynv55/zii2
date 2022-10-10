@@ -1,7 +1,11 @@
 <?php
 namespace App;
 
+use App\Exceptions\AppException;
+use App\Exceptions\Routers\MethodNotAllowedException;
+use App\Exceptions\Routers\NotFoundException;
 use DI\Container;
+use Exception;
 use Monolog\Logger;
 use Psr\Log\LoggerInterface;
 
@@ -122,30 +126,38 @@ class Application
      */
     public function run()
     {
-        // Fetch method and URI from somewhere
-        $httpMethod = $_SERVER['REQUEST_METHOD'];
-        $uri = $_SERVER['REQUEST_URI'];
+        try {
+            // Fetch method and URI from somewhere
+            $httpMethod = $_SERVER['REQUEST_METHOD'];
+            $uri = $_SERVER['REQUEST_URI'];
 
-        // Strip query string (?foo=bar) and decode URI
-        if (false !== $pos = strpos($uri, '?')) {
-            $uri = substr($uri, 0, $pos);
-        }
-        $uri = rawurldecode($uri);
+            // Strip query string (?foo=bar) and decode URI
+            if (false !== $pos = strpos($uri, '?')) {
+                $uri = substr($uri, 0, $pos);
+            }
+            $uri = rawurldecode($uri);
 
-        $routeInfo = $this->getRouter()->dispatch($httpMethod, $uri);
-        switch ($routeInfo[0]) {
-            case \FastRoute\Dispatcher::NOT_FOUND:
-                echo '404 Not Found';
-                die();
-                break;
-            case \FastRoute\Dispatcher::METHOD_NOT_ALLOWED:
-                echo '405 Method Not Allowed';
-                die();
-                break;
-            case \FastRoute\Dispatcher::FOUND:
-                $this->makeResponse($routeInfo[1], $routeInfo[2] ?? []);
-                break;
+            $routeInfo = $this->getRouter()->dispatch($httpMethod, $uri);
+            switch ($routeInfo[0]) {
+                case \FastRoute\Dispatcher::NOT_FOUND:
+                    throw new NotFoundException('404 Not Found');
+                    break;
+                case \FastRoute\Dispatcher::METHOD_NOT_ALLOWED:
+                    throw new MethodNotAllowedException('405 Method Not Allowed');
+                    break;
+                case \FastRoute\Dispatcher::FOUND:
+                    $this->makeResponse($routeInfo[1], $routeInfo[2] ?? []);
+                    break;
+            }
         }
+        catch (Exception $e)
+        {
+            if($e instanceof  AppException){
+                $e->handler();
+            }
+            // TODO catch default exception
+        }
+        
     }
 
     public function makeResponse($handler, array $vars = [])

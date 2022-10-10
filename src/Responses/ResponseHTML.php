@@ -40,7 +40,7 @@ class ResponseHTML extends Response
         if(!is_null($this->body)) {
             $resources = $this->body->toArray();
         }
-        echo $this->template->render($this->view, array_merge($resources, $this->data));
+        $this->content = $this->template->render($this->view, array_merge($resources, $this->data));
         parent::send();
     }
 

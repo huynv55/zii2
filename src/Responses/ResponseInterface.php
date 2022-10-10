@@ -125,9 +125,9 @@ interface ResponseInterface
     /**
      * Gets the body of the response.
      *
-     * @return ResourceInterface Returns the body.
+     * @return string content Returns the body.
      */
-    public function getBody() : ?ResourceInterface;
+    public function getBody() : ?string;
 
     /**
      * Return an instance with the specified message body.
@@ -138,11 +138,10 @@ interface ResponseInterface
      * immutability of the message, and MUST return a new instance that has the
      * new body stream.
      *
-     * @param ResourceInterface $body Body.
+     * @param string $body Body response.
      * @return static
-     * @throws \InvalidArgumentException When the body is not valid.
      */
-    public function setBody(?ResourceInterface $body) : ResponseInterface;
+    public function setBody(string $body) : ResponseInterface;
 
     /**
      * action send response to client

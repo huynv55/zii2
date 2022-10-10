@@ -61,17 +61,17 @@ abstract class AppRequest implements RequestInterface
         return !empty($results) ? implode("\n", $results) : '';
     }
 
-    public function getQueryString()
+    public function getQueryString() : array
     {
         return $this->get;
     }
 
-    public function getPostData()
+    public function getPostData() : array
     {
         return $this->post;
     }
 
-    public function getFileUpload()
+    public function getFileUpload() : array
     {
         return $this->files;
     }

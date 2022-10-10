@@ -41,6 +41,21 @@ return [
         $connection = new \PDO($dsn, $mysql['user'], $mysql['password'], $opts);
         $connection->setAttribute(\PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         return $connection;
+    },
+    \MongoDB\Client::class => function(Container $c) {
+        $settings = $c->get('settings');
+        $mongo = $settings['database']['mongo'];
+        $opts = [];
+        if(!empty($mongo['user']) && !empty($mongo['password'])) {
+            if(empty($mongo['authDB'])) {
+                $mongo['authDB'] = 'admin';
+            }
+            $url_con = "mongodb://".$mongo['user'].":".$mongo['password']."@". $mongo['host'] .":". $mongo['port']."?authSource=".$mongo['authDB'];
+        } else {
+            $url_con = "mongodb://". $mongo['host'] .":". $mongo['port'];
+        }
+        $connection = new \MongoDB\Client($url_con, $opts);
+        return $connection;
     }
 ];
 ?>

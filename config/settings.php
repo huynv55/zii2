@@ -25,6 +25,10 @@ return [
             'port' => env('MYSQL_PORT'),
             'db' => env('MYSQL_DB'),
             'charset' => env('MYSQL_CHARSET', 'utf8mb4')
+        ],
+        'mongo' => [
+            'host' => 'localhost',
+            'port' => 27017
         ]
     ],
     'middlewares' => [

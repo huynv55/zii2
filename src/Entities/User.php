@@ -1,6 +1,8 @@
 <?php
 namespace App\Entities;
 
+use App\Requests\RequestInterface;
+
 class User extends Entity
 {
     public int $id;
@@ -22,6 +24,17 @@ class User extends Entity
 
     const PRIMARY_KEY = 'id';
 
+    protected array $_accessible = [
+        'id',
+        'email',
+        'status',
+        'status_message',
+        'active',
+        'created_at',
+        'updated_at',
+        'meta_data'
+    ];
+
     public function primaryKey()
     {
         return self::PRIMARY_KEY;    
@@ -29,17 +42,19 @@ class User extends Entity
 
     public function toArray(): array
     {
-        return [
-            self::PRIMARY_KEY => $this->{self::PRIMARY_KEY},
-            'email' => $this->email,
-            'username' => $this->username,
-            'status' => $this->status,
-            'status_message' => $this->status_message,
-            'active' => $this->active,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
-            'meta_data' => json_decode($this->meta_data, true)
-        ];
+        $data = parent::toArray();
+        $data['meta_data'] = json_decode($this->meta_data, true);
+        return $data;
+    }
+
+    public function fromData(array $data)
+    {
+        parent::fromData($data);
+        if(!empty($data[self::PRIMARY_KEY]))
+        {
+            $this->id = $data[self::PRIMARY_KEY];
+        }
+        return $this;
     }
 }
 ?>

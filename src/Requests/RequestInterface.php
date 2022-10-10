@@ -71,11 +71,11 @@ interface RequestInterface
      */
     public function getHeaderLine($name);
 
-    public function getQueryString();
+    public function getQueryString() : array;
 
-    public function getPostData();
+    public function getPostData() : array;
 
-    public function getFileUpload();
+    public function getFileUpload() : array;
     
     /**
      * Retrieves the URI instance.

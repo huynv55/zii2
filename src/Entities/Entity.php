@@ -1,8 +1,10 @@
 <?php
 namespace App\Entities;
-
+use App\Requests\RequestInterface;
 abstract class Entity implements EntityInterface
 {
+    protected array $_accessible = [];
+
     public function __set($name, $value)
     {
         $method = camelCase('set_'.$name);
@@ -25,6 +27,34 @@ abstract class Entity implements EntityInterface
         {
             return $this->{$name};
         }
+    }
+
+    public function toArray(): array
+    {
+        $data = [];
+        foreach($this->_accessible as $key => $field)
+        {
+            $data[$field] = $this->{$field};
+        }
+        return $data;
+    }
+
+    public function fromData(array $data)
+    {
+        foreach($this->_accessible as $key => $field)
+        {
+            if(isset($data[$field]))
+            {
+                $this->{$field} = $data[$field];
+            }
+        }
+        return $this;
+    }
+
+    public function patchRequestData(RequestInterface $request)
+    {
+        $data = $request->getPostData();
+        return $this->fromData($data);
     }
 }
 ?>

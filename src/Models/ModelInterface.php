@@ -21,6 +21,10 @@ interface ModelInterface
 
     public function deleteEntity(EntityInterface &$entity);
 
+    public function exec();
+
+    public function count() : ?int;
+
     public function fetch() : EntityInterface;
 
     public function fetchAll() : array;

@@ -2,7 +2,8 @@
 namespace App\Models;
 
 use App\Entities\EntityInterface;
-
+use App\Requests\RequestInterface;
+use PDOStatement;
 abstract class AppModel implements ModelInterface
 {
     protected \PDO $db;
@@ -126,6 +127,25 @@ abstract class AppModel implements ModelInterface
         $stmp->execute();
     }
 
+    public function exec() : false|PDOStatement
+    {
+        $q = $this->buildQuery();
+        $stmp = $this->db->prepare($q);
+        $stmp->setFetchMode(\PDO::FETCH_ASSOC);
+        $stmp->execute($this->query['params'] ?? []);
+        return $stmp;
+    }
+
+    public function count() : ?int
+    {
+        $this->select(['`COUNT(*) as count_results`']);
+        $this->limit(1);
+        $this->offset(0);
+        $stmp = $this->exec();
+        $result = $stmp->fetch();
+        return $result['count_results'] ?? null;
+    }
+
     /**
      * Fetch one result from database table
      *
@@ -194,6 +214,23 @@ abstract class AppModel implements ModelInterface
         }
         $this->columns = $fields;
         return $fields;
+    }
+
+    public function paginate(RequestInterface $request)
+    {
+        $params = $request->getQueryString();
+        if(!empty($params['limit']))
+        {
+            $this->limit($params['limit']);
+        }
+        if(!empty($params['offset']))
+        {
+            $this->offset($params['offset']);
+        }
+        $this->withParams($params);
+        $results = $this->fetchAll();
+        $total = $this->count();
+        return compact('results', 'total');
     }
 }
 ?>

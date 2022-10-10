@@ -38,6 +38,7 @@ return [
         $mysql = $settings['database']['mysql'];
         $dsn = "mysql:host=". $mysql['host'] .";port=". $mysql['port'].";dbname=".$mysql['db'].";charset=".$mysql['charset'];
         $opts[\PDO::MYSQL_ATTR_INIT_COMMAND] = "SET NAMES 'utf8mb4';";
+        $opts[\PDO::ATTR_PERSISTENT] = true;
         $connection = new \PDO($dsn, $mysql['user'], $mysql['password'], $opts);
         $connection->setAttribute(\PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         return $connection;

@@ -1,5 +1,6 @@
 <?php
 use App\Application;
+use App\Services\CookieService;
 use DI\Container;
 use function FastRoute\simpleDispatcher;
 use Monolog\Handler\StreamHandler;
@@ -57,6 +58,13 @@ return [
         }
         $connection = new \MongoDB\Client($url_con, $opts);
         return $connection;
+    },
+    CookieService::class => function(Container $c) {
+        $settings = $c->get('settings');
+        $options = $settings['cookie'];
+        $cookie = new CookieService();
+        $cookie->setOption($options);
+        return $cookie;
     }
 ];
 ?>

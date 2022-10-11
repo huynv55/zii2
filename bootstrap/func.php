@@ -2,6 +2,7 @@
 use App\Responses\ResponseHTML;
 use App\Responses\ResponseJSON;
 use App\Responses\ResponseRedirect;
+use App\Services\CookieService;
 use App\Services\SessionService;
 
 /**
@@ -27,11 +28,21 @@ function container() : DI\Container
 /**
  * get instance session
  *
- * @return DI\SessionService
+ * @return SessionService
  */
 function session() : SessionService
 {
     return container()->get(SessionService::class);
+}
+
+/**
+ * get instance cookie
+ *
+ * @return CookieService
+ */
+function cookie() : CookieService
+{
+    return container()->get(CookieService::class);
 }
 
 /**

@@ -31,6 +31,9 @@ return [
             'port' => 27017
         ]
     ],
+    'cookie' => [
+        // setting cookie
+    ],
     'middlewares' => [
         'app' => [
             AppMiddleware::class,

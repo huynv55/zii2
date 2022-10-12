@@ -4,6 +4,7 @@ use App\Responses\ResponseJSON;
 use App\Responses\ResponseRedirect;
 use App\Services\CookieService;
 use App\Services\SessionService;
+use Psr\Log\LoggerInterface;
 
 /**
  * get instance class application
@@ -73,6 +74,16 @@ function responseJson() : ResponseJSON
 function redirect() : ResponseRedirect
 {
     return container()->get(ResponseRedirect::class);
+}
+
+/**
+ * get instance log
+ *
+ * @return LoggerInterface
+ */
+function appLog() : LoggerInterface
+{
+    return container()->get(LoggerInterface::class);
 }
 
 /**

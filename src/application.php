@@ -73,31 +73,31 @@ class Application
         return $this->container->get('Router');
     }
 
-    public function middleware($middleware)
+    public function middleware($middleware, array $params = [])
     {
         $settings = $this->getConfig();
         $middlewares = $settings['middlewares'];
         if(is_string($middleware))
         {
-            if(is_string($middlewares[$middleware]))
+            if(!empty($middlewares[$middleware]) && is_string($middlewares[$middleware]))
             {
-                return $this->getContainer()->call($middlewares[$middleware].'::handle');
-            } else if(is_array($middlewares[$middleware])) 
+                return $this->getContainer()->call($middlewares[$middleware].'::handle', $params);
+            } else if(!empty($middlewares[$middleware]) && is_array($middlewares[$middleware])) 
             {
                 foreach ($middlewares[$middleware] as $key => $m) {
-                    if(!$this->middleware($m)) 
+                    if(!$this->middleware($m, $params)) 
                     {
                         return Middleware::STOP;
                     }
                 }
                 return Middleware::NEXT;
             }
-            return $this->getContainer()->call($middleware.'::handle');
+            return $this->getContainer()->call($middleware.'::handle', $params);
             
         } else if(is_array($middleware))
         {
             foreach ($middleware as $key => $m) {
-                if(!$this->middleware($m)) 
+                if(!$this->middleware($m, $params)) 
                 {
                     return Middleware::STOP;
                 }

@@ -14,7 +14,7 @@ class CorsMiddleware extends Middleware
         app()->setResponseHeader('Access-Control-Allow-Methods', '*');
         app()->setResponseHeader('Access-Control-Allow-Headers', '*');
         app()->setResponseHeader('Access-Control-Max-Age', 86400);
-        return Middleware::NEXT;
+        return $this->next();
     }
 }
 ?>

@@ -3,7 +3,9 @@ namespace App\Middlewares;
 
 interface MiddlewareInterface
 {
-    public function handle();
+    public function next();
+
+    public function stop();
 }
 
 ?>

@@ -4,6 +4,7 @@ namespace App;
 use App\Exceptions\AppException;
 use App\Exceptions\Routers\MethodNotAllowedException;
 use App\Exceptions\Routers\NotFoundException;
+use App\Middlewares\Middleware;
 use DI\Container;
 use Exception;
 use Monolog\Logger;
@@ -75,48 +76,35 @@ class Application
     public function middleware($middleware)
     {
         $settings = $this->getConfig();
-
-        if(is_array($middleware))
+        $middlewares = $settings['middlewares'];
+        if(is_string($middleware))
         {
-            foreach($middleware as $m) {
-                if(!empty($settings['middlewares'][$m]))
-                {
-                    if(is_string($settings['middlewares'][$m]))
-                    {
-                        if(!$this->getContainer()->call($settings['middlewares'][$m].'::handle'))
-                        {
-                            break;
-                        }
-                    } else if(is_array($settings['middlewares'][$m]))
-                    {
-                        foreach($settings['middlewares'][$m] as $h)
-                        {
-                            if(is_string($h)) {
-                                if(!$this->getContainer()->call($h.'::handle'))
-                                {
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        } else if(is_string($middleware)) {
-            if(is_string($settings['middlewares'][$middleware])) {
-                $this->getContainer()->call($settings['middlewares'][$middleware].'::handle');
-            } else if(is_array($settings['middlewares'][$middleware]))
+            if(is_string($middlewares[$middleware]))
             {
-                foreach($settings['middlewares'][$middleware] as $h)
-                {
-                    if(is_string($h)) {
-                        if(!$this->getContainer()->call($h.'::handle'))
-                        {
-                            break;
-                        }
+                return $this->getContainer()->call($middlewares[$middleware].'::handle');
+            } else if(is_array($middlewares[$middleware])) 
+            {
+                foreach ($middlewares[$middleware] as $key => $m) {
+                    if(!$this->middleware($m)) 
+                    {
+                        return Middleware::STOP;
                     }
                 }
+                return Middleware::NEXT;
             }
+            return $this->getContainer()->call($middleware.'::handle');
+            
+        } else if(is_array($middleware))
+        {
+            foreach ($middleware as $key => $m) {
+                if(!$this->middleware($m)) 
+                {
+                    return Middleware::STOP;
+                }
+            }
+            return Middleware::NEXT;
         }
+        return Middleware::NEXT;
     }
 
     /**

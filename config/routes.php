@@ -6,6 +6,7 @@
  */
 use App\Routes\AppRoute;
 
-$router = (new AppRoute($router))->dispatch();
-
+return [
+    AppRoute::class
+];
 ?>

@@ -107,6 +107,12 @@ function env(string $env, mixed $default = null) : mixed
     return $default;
 }
 
+function isEnvProduction() : bool
+{
+    $settings = container()->get('settings');
+    return $settings['app']['env'] == 'prod';
+}
+
 function camelCase($str, array $noStrip = [])
 {
     // non-alpha and non-numeric characters become spaces

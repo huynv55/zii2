@@ -11,22 +11,16 @@ class AppRoute extends Route
     public function __construct(RouteCollector $route)
     {
         $this->route = $route;
-        $this->home();
     }
 
-    private function home()
+    public static function getUrlRouteHome()
     {
-        $this->route->get('/', HomeIndexAction::class);
-        $this->route->post('/post', HomeIndexAction::class);
-    }
-
-    public function getUrlRouteHome()
-    {
-        return self::base().'/';
+        return '/';
     }
 
     public function dispatch(): RouteCollector
     {
+        $this->route->get(self::getUrlRouteHome(), HomeIndexAction::class);
         return $this->route;
     }
 }

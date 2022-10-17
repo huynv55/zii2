@@ -8,7 +8,7 @@ return [
         'env' => env('APP_ENV', 'local'),
         'name' => env('APP_NAME', 'Zii2')
     ],
-    'di_compilation_path' => __DIR__ . '/../tmp/cache',
+    'router_cached_path' => __DIR__ . '/../tmp/router.php',
     'display_error_details' => false,
     'log_errors' => true,
     

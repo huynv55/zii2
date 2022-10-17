@@ -2,6 +2,8 @@
 use App\Application;
 use App\Services\CookieService;
 use DI\Container;
+
+use function FastRoute\cachedDispatcher;
 use function FastRoute\simpleDispatcher;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
@@ -16,9 +18,29 @@ return [
         return new Application($c);
     },
     'Router' => function(Container $c) {
-        return simpleDispatcher(function(\FastRoute\RouteCollector $router) {
-            require __DIR__.'/routes.php';
-        });
+        $settings = $c->get('settings');
+        if(isEnvProduction())
+        {
+            return cachedDispatcher(function(\FastRoute\RouteCollector $router) {
+                $routers = require __DIR__.'/routes.php';
+                foreach($routers as $class)
+                {
+                    $router = (new $class($router))->dispatch();
+                }
+            }, [
+                'cacheFile' => $settings['router_cached_path']
+            ]);
+        }
+        else
+        {
+            return simpleDispatcher(function(\FastRoute\RouteCollector $router) {
+                $routers = require __DIR__.'/routes.php';
+                foreach($routers as $class)
+                {
+                    $router = (new $class($router))->dispatch();
+                }
+            });
+        }
     },
     LoggerInterface::class => function (Container $c) {
         $settings = $c->get('settings');

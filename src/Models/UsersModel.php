@@ -3,6 +3,7 @@ namespace App\Models;
 
 use App\Entities\User;
 use App\Models\Behavior\SoftDelete;
+use App\Models\Behavior\ValidateEntity;
 
 class UsersModel extends AppModel
 {
@@ -11,7 +12,22 @@ class UsersModel extends AppModel
     protected string $tableName = 'users';
     protected array $query;
 
+    /**
+     * array list messages validation
+     * more detail https://github.com/rakit/validation
+     * @var array
+     */
+    public array $messages = [];
+
+    /**
+     * array validate config
+     * more detail https://github.com/rakit/validation
+     * @var array
+     */
+    public array $validate = [];
+
     use SoftDelete;
+    use ValidateEntity;
 
     public function __construct(\PDO $db)
     {

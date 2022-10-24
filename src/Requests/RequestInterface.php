@@ -92,6 +92,8 @@ interface RequestInterface
 
     public function validated();
 
+    public function getValidateErrors();
+
     public function authorize();
 
     public function user();

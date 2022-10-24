@@ -1,14 +1,59 @@
 <?php
 namespace App\Requests;
-
+use Rakit\Validation\Validator;
+use Rakit\Validation\Validation;
 
 abstract class AppRequest implements RequestInterface
 {
-    protected array $headers;
-    protected string $method;
-    protected array $post;
-    protected array $get;
-    protected array $files;
+    /**
+     * array list of request headers
+     *
+     * @var array
+     */
+    protected   array $headers;
+
+    /**
+     * method of request GET, POST, PUT, OPTIONS or DELETE
+     *
+     * @var string
+     */
+    protected   string $method;
+
+    /**
+     * post data request
+     *
+     * @var array
+     */
+    protected   array $post;
+
+    /**
+     * query params request
+     *
+     * @var array
+     */
+    protected   array $get;
+
+    /**
+     * array list files uploaded 
+     *
+     * @var array
+     */
+    protected   array $files;
+
+    /**
+     * array validate config
+     * more detail https://github.com/rakit/validation
+     * @var array
+     */
+    public      array $validate = [];
+
+    /**
+     * array list messages validation
+     *
+     * @var array
+     */
+    public      array $messages = [];
+    protected   Validation $validation;
 
     public function __construct()
     {
@@ -17,6 +62,8 @@ abstract class AppRequest implements RequestInterface
         $this->post = $_POST;
         $this->get = $_GET;
         $this->files = $_FILES;
+        $validator = new Validator($this->messages);
+        $this->validation = $validator->validate(array_merge($this->files, $this->post, $this->get), $this->validate);
     }
 
     public function getProtocolVersion()
@@ -81,9 +128,19 @@ abstract class AppRequest implements RequestInterface
         return $_SERVER['REQUEST_URI'];
     }
 
+    /**
+     * check validate request
+     *
+     * @return boolean
+     */
     public function validated() : bool
     {
-        return true;
+        return $this->validation->passes();
+    }
+    
+    public function getValidateErrors()
+    {
+        return $this->validation->errors();
     }
 
     public function authorize() : bool

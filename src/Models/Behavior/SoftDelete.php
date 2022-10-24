@@ -5,7 +5,7 @@ use App\Entities\EntityInterface;
 use App\Models\AppModel;
 
 /**
- * defind logic soft deleted use deleted_at
+ * define logic soft deleted use deleted_at
  */
 trait SoftDelete
 {

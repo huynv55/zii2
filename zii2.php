@@ -11,5 +11,14 @@ require __DIR__."/bootstrap/func.php";
 
 $app = require __DIR__."/bootstrap/app.php";
 
-var_dump($argv);
+$classes = \ClassFinder::getInstance()->getClassesByNamespace('\\App\\Consoles');
+$command = $argv[1] ?? '';
+
+foreach ($classes as $key => $class) {
+    $console = container()->get($class);
+    if ($console->getCommand() === $command) {
+        $console->run();
+        die();
+    }
+}
 ?>

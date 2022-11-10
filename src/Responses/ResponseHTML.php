@@ -7,7 +7,7 @@ use App\Views\DateHelper;
 use League\Plates\Engine as PhpRenderer;
 use League\Plates\Extension\URI as URIHepler;
 use League\Plates\Extension\Asset as AssetHepler;
-class ResponseHTML extends Response
+class ResponseHTML extends ResponseAbstract
 {
     protected PhpRenderer $template;
     protected string $view;

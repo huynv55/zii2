@@ -4,7 +4,7 @@ namespace App\Repositories;
 use App\Entities\User;
 use App\Models\UsersModel;
 
-class UsersRepository extends AppRepository
+class UsersRepository extends AppRepositoryAbstract
 {
     protected UsersModel $model;
 

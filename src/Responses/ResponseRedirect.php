@@ -1,7 +1,7 @@
 <?php
 namespace App\Responses;
 
-class ResponseRedirect extends Response
+class ResponseRedirect extends ResponseAbstract
 {
     public function to(string $to) : ResponseRedirect
     {

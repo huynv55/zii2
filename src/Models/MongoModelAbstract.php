@@ -1,7 +1,7 @@
 <?php
 namespace App\Models;
 
-abstract class MongoModel
+abstract class MongoModelAbstract
 {
     protected \MongoDB\Client $mongo;
     protected string $entityClass;

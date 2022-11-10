@@ -1,7 +1,7 @@
 <?php
 namespace App\Services;
 
-class CookieService extends AppService
+class CookieService extends AppServiceAbstract
 {
 	protected array $options;
 

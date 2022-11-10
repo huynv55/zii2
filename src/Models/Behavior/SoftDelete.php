@@ -2,14 +2,14 @@
 namespace App\Models\Behavior;
 
 use App\Entities\EntityInterface;
-use App\Models\AppModel;
+use App\Models\AppModelAbstract;
 
 /**
  * define logic soft deleted use deleted_at
  */
 trait SoftDelete
 {
-    public function where(array $where) : AppModel
+    public function where(array $where) : AppModelAbstract
     {
         if(in_array('deleted_at', $this->getColmuns()))
         {
@@ -19,7 +19,7 @@ trait SoftDelete
         return $this;
     }
 
-    public function forceWhere(array $where)
+    public function forceWhere(array $where) : AppModelAbstract
     {
         if(in_array('deleted_at', $this->getColmuns()))
         {

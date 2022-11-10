@@ -25,5 +25,20 @@
         "mongodb/mongodb": "^1.12",
         "phpmailer/phpmailer": "^6.6",
         "rakit/validation": "^1.4"
-    }
+    },
+    "scripts": {
+        "post-update-cmd": [
+            "composer dump-autoload -o"
+        ],
+        "post-root-package-install": [
+            "@php -r \"file_exists('.env') || copy('.env.example', '.env');\"",
+            "composer dump-autoload -o"
+        ]
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "sort-packages": true
+    },
+    "prefer-stable": true
 }

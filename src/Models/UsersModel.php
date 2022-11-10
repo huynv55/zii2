@@ -5,7 +5,7 @@ use App\Entities\User;
 use App\Models\Behavior\SoftDelete;
 use App\Models\Behavior\ValidateEntity;
 
-class UsersModel extends AppModel
+class UsersModel extends AppModelAbstract
 {
     protected \PDO $db;
     protected string $entityClass = User::class;

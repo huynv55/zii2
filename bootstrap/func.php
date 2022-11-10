@@ -1,4 +1,6 @@
 <?php
+require __DIR__."/class_finder.php";
+
 use App\Responses\ResponseHTML;
 use App\Responses\ResponseJSON;
 use App\Responses\ResponseRedirect;

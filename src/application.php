@@ -4,7 +4,7 @@ namespace App;
 use App\Exceptions\AppException;
 use App\Exceptions\Routers\MethodNotAllowedException;
 use App\Exceptions\Routers\NotFoundException;
-use App\Middlewares\Middleware;
+use App\Middlewares\MiddlewareAbstract;
 use DI\Container;
 use Exception;
 use Monolog\Logger;
@@ -87,10 +87,10 @@ class Application
                 foreach ($middlewares[$middleware] as $key => $m) {
                     if(!$this->middleware($m, $params)) 
                     {
-                        return Middleware::STOP;
+                        return MiddlewareAbstract::STOP;
                     }
                 }
-                return Middleware::NEXT;
+                return MiddlewareAbstract::NEXT;
             }
             return $this->getContainer()->call($middleware.'::handle', $params);
             
@@ -99,12 +99,12 @@ class Application
             foreach ($middleware as $key => $m) {
                 if(!$this->middleware($m, $params)) 
                 {
-                    return Middleware::STOP;
+                    return MiddlewareAbstract::STOP;
                 }
             }
-            return Middleware::NEXT;
+            return MiddlewareAbstract::NEXT;
         }
-        return Middleware::NEXT;
+        return MiddlewareAbstract::NEXT;
     }
 
     /**

@@ -4,7 +4,7 @@ namespace App\Models;
 use App\Entities\EntityInterface;
 use App\Requests\RequestInterface;
 use PDOStatement;
-abstract class AppModel implements ModelInterface
+abstract class AppModelAbstract implements ModelInterface
 {
     protected \PDO $db;
     protected string $entityClass;

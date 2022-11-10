@@ -4,7 +4,7 @@ namespace App\Routes;
 use App\Controllers\Home\IndexAction as HomeIndexAction;
 use FastRoute\RouteCollector;
 
-class AppRoute extends Route
+class AppRoute extends RouteAbstract
 {
     protected RouteCollector $route;
 

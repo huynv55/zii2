@@ -3,7 +3,7 @@ namespace App\Entities;
 
 use App\Requests\RequestInterface;
 
-class User extends Entity
+class User extends EntityAbstract
 {
     public int $id;
     public string $email;

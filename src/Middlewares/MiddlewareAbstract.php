@@ -2,7 +2,7 @@
 namespace App\Middlewares;
 
 
-abstract class Middleware implements MiddlewareInterface
+abstract class MiddlewareAbstract implements MiddlewareInterface
 {
     const NEXT = 1;
     const STOP = 0;

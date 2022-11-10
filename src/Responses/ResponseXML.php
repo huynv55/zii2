@@ -3,7 +3,7 @@ namespace App\Responses;
 
 use App\Resources\ResourceInterface;
 
-class ResponseXML extends Response
+class ResponseXML extends ResponseAbstract
 {
     public function __construct()
     {

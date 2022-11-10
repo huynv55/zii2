@@ -1,33 +1,10 @@
 <?php
 namespace App\Entities;
 use App\Requests\RequestInterface;
-abstract class Entity implements EntityInterface
+
+abstract class MongoEntityAbstract implements MongoEntityInterface
 {
     protected array $_accessible = [];
-
-    public function __set($name, $value)
-    {
-        $method = camelCase('set_'.$name);
-        if(method_exists($this, $method))
-        {
-            $this->{$method}($value);
-        } 
-        else {
-            $this->{$name} = $value;
-        }
-    }
-
-    public function __get($name)
-    {
-        $method = camelCase('get_'.$name);
-        if(method_exists($this, $method))
-        {
-            return $this->{$method}();
-        } else
-        {
-            return $this->{$name};
-        }
-    }
 
     public function toArray(): array
     {
@@ -54,6 +31,16 @@ abstract class Entity implements EntityInterface
     public function patchRequestData(RequestInterface $request)
     {
         $data = $request->getPostData();
+        return $this->fromData($data);
+    }
+
+    public function bsonSerialize()
+    {
+        return $this->toArray();
+    }
+
+    public function bsonUnserialize(array $data)
+    {
         return $this->fromData($data);
     }
 }

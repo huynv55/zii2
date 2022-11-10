@@ -3,7 +3,7 @@ namespace App\Responses;
 
 use App\Resources\ResourceInterface;
 
-class ResponseJSON extends Response
+class ResponseJSON extends ResponseAbstract
 {
     public function __construct()
     {

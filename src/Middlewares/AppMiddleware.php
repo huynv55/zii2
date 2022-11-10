@@ -1,7 +1,7 @@
 <?php
 namespace App\Middlewares;
 
-class AppMiddleware extends Middleware
+class AppMiddleware extends MiddlewareAbstract
 {
     public function __construct()
     {
@@ -10,7 +10,7 @@ class AppMiddleware extends Middleware
 
     public function handle()
     {
-        return Middleware::NEXT;
+        return MiddlewareAbstract::NEXT;
     }
 }
 ?>

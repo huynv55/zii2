@@ -3,7 +3,7 @@ namespace App\Requests;
 use Rakit\Validation\Validator;
 use Rakit\Validation\Validation;
 
-abstract class AppRequest implements RequestInterface
+abstract class AppRequestAbstract implements RequestInterface
 {
     /**
      * array list of request headers

@@ -3,7 +3,7 @@ namespace App\Controllers;
 use App\Application;
 use Monolog\Logger;
 
-class AppController extends Controller
+class AppController extends ControllerAbstract
 {
 
     public function getLog() : Logger

@@ -1,7 +1,7 @@
 <?php
 namespace App\Responses;
 
-abstract class Response implements ResponseInterface
+abstract class ResponseAbstract implements ResponseInterface
 {
     /**
      * all message header values response

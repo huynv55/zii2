@@ -1,8 +1,8 @@
 <?php
 namespace App\Requests;
-class Request extends AppRequest
+class Request extends AppRequestAbstract
 {
-    protected array $validate = [];
-    protected array $messages = [];
+    public array $validate = [];
+    public array $messages = [];
 }
 ?>

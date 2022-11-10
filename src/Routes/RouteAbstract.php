@@ -1,7 +1,7 @@
 <?php
 namespace App\Routes;
 
-abstract class Route implements RouteInterface
+abstract class RouteAbstract implements RouteInterface
 {
 
     public static function getCurrentUrl()

@@ -1,7 +1,7 @@
 <?php
 namespace App\Middlewares;
 
-class CorsMiddleware extends Middleware
+class CorsMiddleware extends MiddlewareAbstract
 {
     public function __construct()
     {

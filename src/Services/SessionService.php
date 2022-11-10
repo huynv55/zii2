@@ -1,7 +1,7 @@
 <?php
 namespace App\Services;
 
-class SessionService extends AppService
+class SessionService extends AppServiceAbstract
 {
     const SESSION_NAME = 'session_';
     const SESSION_FLASH_NAME = 'flash_session_';

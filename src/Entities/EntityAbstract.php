@@ -3,7 +3,7 @@ namespace App\Entities;
 use App\Requests\RequestInterface;
 abstract class EntityAbstract implements EntityInterface
 {
-    protected array $_accessible = [];
+    public array $_accessible = [];
 
     public function __set($name, $value)
     {

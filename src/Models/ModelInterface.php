@@ -25,7 +25,7 @@ interface ModelInterface
 
     public function count() : ?int;
 
-    public function fetch() : EntityInterface;
+    public function fetch() : EntityInterface|bool;
 
     public function fetchAll() : array;
 }

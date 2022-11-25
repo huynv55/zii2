@@ -1,17 +1,11 @@
 <?php
 final class ClassFinder
 {
-    private static $classes  = [];
     public static self|null $instance = null;
 
     private function __construct()
     {
-        $composer = $GLOBALS['composer'];
-        self::$classes  = [];
-
-        if (!empty($composer)) {
-            self::$classes  = array_keys($composer->getClassMap());
-        }
+        
     }
 
     public static function getInstance() : self
@@ -22,53 +16,38 @@ final class ClassFinder
         return self::$instance;
     }
 
-    public function getClasses()
-    {
-        $allClasses = [];
-
-        if (!empty(self::$classes)) {
-            foreach (self::$classes as $class) {
-                $allClasses[] = '\\' . $class;
+    public function getListFileInDir($dir, &$results = array()) {
+        if(empty($dir)) {
+            return $results;
+        }
+        $files = scandir($dir);
+        foreach ($files as $key => $value) {
+            $path = realpath($dir . DIRECTORY_SEPARATOR . $value);
+            if (is_file($path)) {
+                $results[] = $path;
+            } else if ($value != "." && $value != "..") {
+                $this->getListFileInDir($path, $results);
+                //$results[] = $path;
             }
         }
-
-        return $allClasses;
+        return $results;
     }
 
-    public function getClassesByNamespace($namespace)
-    {
-        if (0 !== strpos($namespace, '\\')) {
-            $namespace = '\\' . $namespace;
+    public function getListClassInDir($dir, &$results = array()) {
+        if(empty($dir)) {
+            return $results;
         }
-
-        $termUpper = strtoupper($namespace);
-        return array_filter($this->getClasses(), function($class) use ($termUpper) {
-            $className = strtoupper($class);
-            if (
-                0 === strpos($className, $termUpper) and
-                false === strpos($className, strtoupper('Abstract')) and
-                false === strpos($className, strtoupper('Interface'))
-            ){
-                return $class;
+        $files = scandir($dir);
+        foreach ($files as $key => $value) {
+            $path = realpath($dir . DIRECTORY_SEPARATOR . $value);
+            if (is_file($path)) {
+                $results[] = pathinfo($path, PATHINFO_FILENAME);
+            } else if ($value != "." && $value != "..") {
+                $this->getListClassInDir($path, $results);
+                //$results[] = $path;
             }
-            return false;
-        });
-    }
-
-    public function getClassesWithTerm($term)
-    {
-        $termUpper = strtoupper($term);
-        return array_filter($this->getClasses(), function($class) use ($termUpper) {
-            $className = strtoupper($class);
-            if (
-                false !== strpos($className, $termUpper) and
-                false === strpos($className, strtoupper('Abstract')) and
-                false === strpos($className, strtoupper('Interface'))
-            ){
-                return $class;
-            }
-            return false;
-        });
+        }
+        return $results;
     }
 }
 ?>

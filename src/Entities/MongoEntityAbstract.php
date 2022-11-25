@@ -4,7 +4,7 @@ use App\Requests\RequestInterface;
 
 abstract class MongoEntityAbstract implements MongoEntityInterface
 {
-    protected array $_accessible = [];
+    public array $_accessible = [];
 
     public function toArray(): array
     {

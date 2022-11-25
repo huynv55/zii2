@@ -67,7 +67,7 @@ abstract class AppModelAbstract implements ModelInterface
         foreach ($columns as $key => $column) {
             if($column != $entity->primaryKey())
             {
-                $params[$column] = $entity->{$column};
+                $params[$column] = $entity->{$column} ?? null;
             }
         }
         $primaryValue = $entity->{$entity->primaryKey()} ?? 0;
@@ -138,7 +138,7 @@ abstract class AppModelAbstract implements ModelInterface
 
     public function count() : ?int
     {
-        $this->select(['`COUNT(*) as count_results`']);
+        $this->select(['COUNT(*) as `count_results`']);
         $this->limit(1);
         $this->offset(0);
         $stmp = $this->exec();
@@ -149,9 +149,9 @@ abstract class AppModelAbstract implements ModelInterface
     /**
      * Fetch one result from database table
      *
-     * @return EntityInterface
+     * @return EntityInterface|bool
      */
-    public function fetch() : EntityInterface
+    public function fetch() : EntityInterface|bool
     {
         $this->limit(1);
         $q = $this->buildQuery();

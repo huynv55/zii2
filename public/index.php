@@ -6,6 +6,7 @@ $dotenv->load();
 
 define('CONTAINER_NAME', 'container');
 define('APPLICATION_NAME', 'app');
+define('ROOT_PATH', dirname(__DIR__));
 
 require __DIR__."/../bootstrap/func.php";
 

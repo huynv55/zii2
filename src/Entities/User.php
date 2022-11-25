@@ -1,8 +1,6 @@
 <?php
 namespace App\Entities;
 
-use App\Requests\RequestInterface;
-
 class User extends EntityAbstract
 {
     public int $id;
@@ -24,7 +22,7 @@ class User extends EntityAbstract
 
     const PRIMARY_KEY = 'id';
 
-    protected array $_accessible = [
+    public array $_accessible = [
         'id',
         'email',
         'status',

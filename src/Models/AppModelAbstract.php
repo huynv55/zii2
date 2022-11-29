@@ -67,7 +67,14 @@ abstract class AppModelAbstract implements ModelInterface
         foreach ($columns as $key => $column) {
             if($column != $entity->primaryKey())
             {
-                $params[$column] = $entity->{$column} ?? null;
+                if (gettype($entity->{$column}) == "boolean") {
+                    $params[$column] = $entity->{$column} ? 1 : 0;
+                } else 
+                if (gettype($entity->{$column}) == "NULL" or gettype($entity->{$column}) == "unknown type") {
+                    $params[$column] = null;
+                } else {
+                    $params[$column] = $entity->{$column} ?? null;
+                }
             }
         }
         $primaryValue = $entity->{$entity->primaryKey()} ?? 0;
@@ -90,7 +97,8 @@ abstract class AppModelAbstract implements ModelInterface
             $query[] = implode(", ", $fields);
             $query[] = "WHERE `".$entity->primaryKey()."` = ".$primaryValue;
             $stmp = $this->db->prepare(implode(" ", $query));
-            $stmp->execute($params);
+            $stmp = $this->bindParams($stmp, $params);
+            $stmp->execute();
         }
         else 
         
@@ -111,7 +119,8 @@ abstract class AppModelAbstract implements ModelInterface
             $query[] = "VALUES";
             $query[] = "(".implode(", ", $fields2).")";
             $stmp = $this->db->prepare(implode(" ", $query));
-            $stmp->execute($params);
+            $stmp = $this->bindParams($stmp, $params);
+            $stmp->execute();
             $entity->{$entity->primaryKey()} = $this->db->lastInsertId();
         }
     }
@@ -132,7 +141,27 @@ abstract class AppModelAbstract implements ModelInterface
         $q = $this->buildQuery();
         $stmp = $this->db->prepare($q);
         $stmp->setFetchMode(\PDO::FETCH_ASSOC);
-        $stmp->execute($this->query['params'] ?? []);
+        $stmp = $this->bindParams($stmp, $this->query['params'] ?? []);
+        $stmp->execute();
+        return $stmp;
+    }
+
+    public function bindParams(PDOStatement $stmp, $params) : PDOStatement
+    {
+        foreach ($params as $key => $param) {
+            $type = gettype($param);
+            if ($type == "boolean") {
+                $stmp->bindValue($key, $param, \PDO::PARAM_BOOL);
+            } else 
+            if ($type == "NULL" or $type == "unknown type") {
+                $stmp->bindValue($key, $param, \PDO::PARAM_NULL);
+            } else 
+            if ($type == "integer") {
+                $stmp->bindValue($key, $param, \PDO::PARAM_INT);
+            } else {
+                $stmp->bindValue($key, $param);
+            }
+        }
         return $stmp;
     }
 
@@ -157,7 +186,8 @@ abstract class AppModelAbstract implements ModelInterface
         $q = $this->buildQuery();
         $stmp = $this->db->prepare($q);
         $stmp->setFetchMode(\PDO::FETCH_CLASS, $this->entityClass);
-        $stmp->execute($this->query['params'] ?? []);
+        $stmp = $this->bindParams($stmp, $this->query['params'] ?? []);
+        $stmp->execute();
         return $stmp->fetch();
     }
 
@@ -171,7 +201,8 @@ abstract class AppModelAbstract implements ModelInterface
         $q = $this->buildQuery();
         $stmp = $this->db->prepare($q);
         $stmp->setFetchMode(\PDO::FETCH_CLASS, $this->entityClass);
-        $stmp->execute($this->query['params'] ?? []);
+        $stmp = $this->bindParams($stmp, $this->query['params'] ?? []);
+        $stmp->execute();
         return $stmp->fetchAll();
     }
 
@@ -219,18 +250,29 @@ abstract class AppModelAbstract implements ModelInterface
     public function paginate(RequestInterface $request)
     {
         $params = $request->getQueryString();
+        $limit = 10;
+        $offset = 0;
+        $page = 1;
         if(!empty($params['limit']))
         {
-            $this->limit($params['limit']);
+            $limit = intval($params['limit']);
         }
         if(!empty($params['offset']))
         {
-            $this->offset($params['offset']);
+            $offset = intval($params['offset']);
         }
-        $this->withParams($params);
+        if(isset($params['page']) && intval($params['page']) > 0) {
+            $page = intval($params['page']);
+            $offset = ($page - 1) * $limit;
+        } else {
+            $page = intval($offset / $limit) + 1;
+        }
+        $this->limit($limit);
+        $this->offset($offset);
         $results = $this->fetchAll();
         $total = $this->count();
-        return compact('results', 'total');
+        $max_page = ( $total % $limit > 0 ) ? intval($total / $limit) + 1 : intval($total / $limit);
+        return compact('results', 'total', 'max_page', 'page');
     }
 }
 ?>

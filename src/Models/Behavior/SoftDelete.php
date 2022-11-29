@@ -19,8 +19,9 @@ trait SoftDelete
         return $this;
     }
 
-    public function forceWhere(array $where) : AppModelAbstract
+    public function forceWhere() : AppModelAbstract
     {
+        $where = json_decode(json_encode($this->query['where']), true);
         if(in_array('deleted_at', $this->getColmuns()))
         {
             if(in_array('`deleted_at` IS NULL', $where))
@@ -42,6 +43,18 @@ trait SoftDelete
         else
         {
             $this->deleteForceEntity($entity);
+        }
+    }
+
+    public function restoreEntity(EntityInterface &$entity)
+    {
+        if(in_array('deleted_at', $this->getColmuns()))
+        {
+            if (!empty($entity->deleted_at))
+            {
+                $entity->deleted_at = null;
+                $this->saveEntity($entity);
+            }
         }
     }
 

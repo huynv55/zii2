@@ -17,7 +17,10 @@ trait ValidateEntity
         {
             parent::saveEntity($entity);
         }
-        throw new ValidationException("Entity is not validate");
+        else
+        {
+            throw new ValidationException("Entity is not validate");
+        }
     }
 
     /**

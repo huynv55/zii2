@@ -27,12 +27,8 @@
         "rakit/validation": "^1.4"
     },
     "scripts": {
-        "post-update-cmd": [
-            "composer dump-autoload -o"
-        ],
         "post-root-package-install": [
-            "@php -r \"file_exists('.env') || copy('.env.example', '.env');\"",
-            "composer dump-autoload -o"
+            "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
         ]
     },
     "config": {

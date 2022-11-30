@@ -82,7 +82,7 @@ abstract class ResponseAbstract implements ResponseInterface
         return !empty($results) ? implode("\n", $results) : '';
     }
 
-    public function withHeader($name, $value): ResponseInterface
+    public function withHeader($name, $value = ''): ResponseInterface
     {
         $this->headers[$name] = $value;
         return $this;
@@ -114,7 +114,11 @@ abstract class ResponseAbstract implements ResponseInterface
         if(!headers_sent())
         {
             foreach ($this->headers as $key => $value) {
-                header($key.': '.$value);
+                if (empty($value)) {
+                    header($key);
+                } else {
+                    header($key.': '.$value);
+                }
             }
         }
         echo $this->content;

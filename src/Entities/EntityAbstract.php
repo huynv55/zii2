@@ -12,7 +12,8 @@ abstract class EntityAbstract implements EntityInterface
         {
             $this->{$method}($value);
         } 
-        else {
+        else
+        {
             $this->{$name} = $value;
         }
     }
@@ -23,9 +24,10 @@ abstract class EntityAbstract implements EntityInterface
         if(method_exists($this, $method))
         {
             return $this->{$method}();
-        } else
+        }
+        else
         {
-            return $this->{$name};
+            return $this->{$name} ?? null;
         }
     }
 

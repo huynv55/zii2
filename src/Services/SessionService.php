@@ -129,5 +129,15 @@ class SessionService extends AppServiceAbstract
         }
         return $csrf;
     }
+
+    public function saveAuth($user)
+    {
+        $this->put('auth', $user);
+    }
+
+    public function getAuth()
+    {
+        return $this->get('auth');
+    }
 }
 ?>

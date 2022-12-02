@@ -5,6 +5,9 @@ use App\Exceptions\AppException;
 
 class ValidationException extends AppException
 {
-    
+	public function handler()
+	{
+		
+	}   
 }
 ?>

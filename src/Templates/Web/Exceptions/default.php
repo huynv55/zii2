@@ -1,8 +1,9 @@
 <?php
 /**
  * @var League\Plates\Template\Template $this
+ * @var App\Exceptions\AppException $error
  */
 ?>
 <?php $this->layout("Layouts/error"); ?> 
-<h1>Not Found Exception</h1>
-<p><?= $message ?></p>
+<h1>An Exception Occurred</h1>
+<p><?= $error->getMessage() ?></p>

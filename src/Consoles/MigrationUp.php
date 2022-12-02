@@ -1,13 +1,12 @@
 <?php
 namespace App\Consoles;
 
-use App\Models\MigrationsModel;
 use ClassFinder;
-use DI\Container;
 
 class MigrationUp extends ConsoleAbstract
 {
     public array $migrations = [];
+    public array $opts = [];
 
     public function run()
     {
@@ -35,6 +34,11 @@ class MigrationUp extends ConsoleAbstract
     public function getCommand(): string
     {
         return 'migration:up';
+    }
+
+    public function setOptions(array $opts)
+    {
+        $this->opts = $opts;
     }
 }
 ?>

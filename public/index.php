@@ -1,4 +1,5 @@
 <?php declare(strict_types=1);
+//require __DIR__.'/basic_auth.php';
 $GLOBALS['composer'] = require __DIR__."/../vendor/autoload.php";
 
 $dotenv = Dotenv\Dotenv::createImmutable(dirname(__DIR__));

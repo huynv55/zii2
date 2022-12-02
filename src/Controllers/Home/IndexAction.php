@@ -14,6 +14,8 @@ class IndexAction extends AppController
 
     public function __invoke(Request $request , ResponseHTML $response)
     {
+        throw new \Exception("Error Processing Request", 1);
+        
         return $response
                     ->setViewRender('home')
                     ->send();

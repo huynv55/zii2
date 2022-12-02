@@ -5,10 +5,10 @@ class Migration extends EntityAbstract
 {
     public int $id;
     public string $name;
-    public ?string $status;
-    public ?string $created_at;
-    public ?string $updated_at;
-    public ?string $deleted_at;
+    public int $status = 0;
+    public ?string $created_at = null;
+    public ?string $updated_at = null;
+    public ?string $deleted_at = null;
 
     const PRIMARY_KEY = 'id';
 

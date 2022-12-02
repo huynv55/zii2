@@ -11,7 +11,27 @@ return [
     'router_cached_path' => __DIR__ . '/../tmp/router.php',
     'display_error_details' => false,
     'log_errors' => true,
-    
+    'smtp' => [
+        'host' => env('SMTP_HOST'),
+        'port' => env('SMTP_PORT'),
+        'user' => env('SMTP_USER'),
+        'sercret' => env('SMTP_SERCRET'),
+        'secure' => env('SMTP_SECURE')
+    ],
+    'mimes' => [
+        'zip' => [
+            'application/x-zip',
+            'application/zip',
+            'application/x-zip-compressed',
+            'application/s-compressed',
+            'multipart/x-zip',
+        ],
+        'pdf' => [
+            'application/pdf',
+            'application/force-download',
+            'application/x-download'
+        ]
+    ],
     'logger' => [
         'name' => 'zii2-app',
         'path' => __DIR__ . '/../tmp/logs/app.log',

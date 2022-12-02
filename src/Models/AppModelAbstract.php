@@ -217,8 +217,12 @@ abstract class AppModelAbstract implements ModelInterface
         $query[] = !empty($this->query['where']) ? implode(" AND ", $this->query['where']) : "1";
         $query[] = !empty($this->query['group']) ? "GROUP BY ". $this->query['group'] : "";
         $query[] = !empty($this->query['order']) ? "ORDER BY ".$this->query['order'] : "";
-        $query[] = !empty($this->query['offset']) ? "OFFSET ".$this->query['offset'] : "";
-        $query[] = !empty($this->query['limit']) ? "LIMIT ".$this->query['limit'] : "";
+        if (!empty($this->query['limit'])) {
+            $query[] = "LIMIT ".$this->query['limit'];
+            if (!empty($this->query['offset'])) {
+                $query[] = "OFFSET ".$this->query['offset'];
+            }
+        }
         return implode(" ", $query);
     }
 

@@ -16,5 +16,7 @@ interface ConsoleInterface
      * @return string
      */
     public function getCommand(): string;
+
+    public function setOptions(array $opts);
 }
 ?>

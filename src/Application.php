@@ -114,6 +114,7 @@ class Application
      */
     public function run()
     {
+        $debugExeption = $this->whoops_add_stack_frame();
         try {
             // Fetch method and URI from somewhere
             $httpMethod = $_SERVER['REQUEST_METHOD'];
@@ -140,10 +141,14 @@ class Application
         }
         catch (Exception $e)
         {
+            $this->log()->error($e->getMessage());
+            $this->log()->error($e->getTraceAsString());
             if($e instanceof  AppException){
                 $e->handler();
             }
+            if($debugExeption) $debugExeption->handleException($e);
             // TODO catch default exception
+            view()->setViewRender('Exceptions/default')->withData(['error' => $e])->send();
         }
         
     }
@@ -151,6 +156,43 @@ class Application
     public function makeResponse($handler, array $vars = [])
     {
         $this->container->call($handler, $vars);
+    }
+
+    public function whoops_add_stack_frame()
+    {
+        if(!env('APP_DEBUG'))
+        {
+            return null;
+        }
+        $run     = new \Whoops\Run();
+        $handler = new \Whoops\Handler\PrettyPageHandler();
+
+        $handler->setApplicationPaths([__FILE__]);
+
+        $handler->addDataTableCallback('Details', function(\Whoops\Exception\Inspector $inspector) {
+            $data = array();
+            $exception = $inspector->getException();
+            if ($exception instanceof SomeSpecificException) {
+                $data['Important exception data'] = $exception->getSomeSpecificData();
+            }
+            $data['Exception class'] = get_class($exception);
+            $data['Exception code'] = $exception->getCode();
+            return $data;
+        });
+
+        $run->pushHandler($handler);
+
+        // Example: tag all frames inside a function with their function name
+        $run->pushHandler(function ($exception, $inspector, $run) {
+            $inspector->getFrames()->map(function ($frame) {
+                if ($function = $frame->getFunction()) {
+                    $frame->addComment("This frame is within function '$function'", 'whoops');
+                }
+                return $frame;
+            });
+        });
+        $run->register();
+        return $run;
     }
 }
 

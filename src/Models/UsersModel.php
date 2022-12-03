@@ -5,6 +5,11 @@ use App\Entities\User;
 use App\Models\Behavior\SoftDelete;
 use App\Models\Behavior\ValidateEntity;
 
+/**
+ * Users model
+ * 
+ * @method UsersModel find()
+ */
 class UsersModel extends AppModelAbstract
 {
     protected \PDO $db;
@@ -33,6 +38,11 @@ class UsersModel extends AppModelAbstract
     {
         $this->db = $db;
         $this->query = [];
+    }
+
+    public function findById(int $id) : User|bool
+    {
+        return $this->find()->where(['`'.User::PRIMARY_KEY.'` = :id'])->withParams(['id' => $id])->fetch();
     }
 
 }

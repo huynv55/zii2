@@ -3,8 +3,8 @@ namespace App\Entities;
 
 class Migration extends EntityAbstract
 {
-    public int $id;
-    public string $name;
+    public int $id = 0;
+    public string $name = '';
     public int $status = 0;
     public ?string $created_at = null;
     public ?string $updated_at = null;

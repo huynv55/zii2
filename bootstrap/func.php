@@ -241,4 +241,20 @@ function unzip($src_file, $dest_dir=false, $create_zip_name_dir=true)
     }
 }
 
+/**
+ * Creates a temporary file with a unique name in read-write (w+) mode and returns path to file temporary.
+ *
+ * @param mixed $content
+ * @return string
+ */
+function writeTemporaryFile($content) : string
+{
+    $tmpfname = tempnam(sys_get_temp_dir(), 'tmp');
+    file_put_contents($tmpfname, $content);
+    register_shutdown_function(function() use($tmpfname) {
+        unlink($tmpfname);
+    });
+    return $tmpfname;
+}
+
 ?>

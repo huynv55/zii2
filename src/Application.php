@@ -6,7 +6,6 @@ use App\Exceptions\Routers\MethodNotAllowedException;
 use App\Exceptions\Routers\NotFoundException;
 use App\Middlewares\MiddlewareAbstract;
 use DI\Container;
-use Exception;
 use Monolog\Logger;
 use Psr\Log\LoggerInterface;
 
@@ -139,7 +138,7 @@ class Application
                     break;
             }
         }
-        catch (Exception $e)
+        catch (\Throwable $e)
         {
             $this->log()->error($e->getMessage());
             $this->log()->error($e->getTraceAsString());

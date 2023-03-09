@@ -28,7 +28,6 @@ abstract class ResponseAbstract implements ResponseInterface
 
     public function __construct()
     {
-        $this->body = null;
         $this->headers = app()->getResponseHeaders();
         $this->statusCode = 200;
         $this->content = '';

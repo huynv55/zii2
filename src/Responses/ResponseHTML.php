@@ -37,9 +37,6 @@ class ResponseHTML extends ResponseAbstract
     public function send()
     {
         $resources = [];
-        if(!is_null($this->body)) {
-            $resources = $this->body->toArray();
-        }
         $this->content = $this->template->render($this->view, array_merge($resources, $this->data));
         parent::send();
     }

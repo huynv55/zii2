@@ -2,6 +2,7 @@
 namespace App\Responses;
 
 use App\Resources\ResourceInterface;
+use JsonSerializable;
 
 class ResponseJSON extends ResponseAbstract
 {
@@ -11,11 +12,9 @@ class ResponseJSON extends ResponseAbstract
         $this->headers['content-type'] = 'application/json';
     }
 
-    public function send(): string
+    public function json(array|JsonSerializable $data)
     {
-        $content = $this->body->toArray();
-        $this->content = json_encode($content);
-        parent::send();
+        return $this->setBody(json_encode($data));
     }
 }
 

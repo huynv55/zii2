@@ -1,6 +1,5 @@
 <?php
 namespace App\Controllers;
-use App\Application;
 use Monolog\Logger;
 
 class AppController extends ControllerAbstract
@@ -8,12 +7,12 @@ class AppController extends ControllerAbstract
 
     public function getLog() : Logger
     {
-        return $this->app->log();
+        return app()->log();
     }
 
     public function settings() : array
     {
-        return $this->app->getConfig();
+        return app()->getConfig();
     }
 }
 ?>

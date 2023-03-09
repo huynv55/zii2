@@ -78,10 +78,17 @@ class Application
         $middlewares = $settings['middlewares'];
         if(is_string($middleware))
         {
-            if(!empty($middlewares[$middleware]) && is_string($middlewares[$middleware]))
+            if(
+                !empty($middlewares[$middleware]) && 
+                is_string($middlewares[$middleware])
+            )
             {
                 return $this->getContainer()->call($middlewares[$middleware].'::handle', $params);
-            } else if(!empty($middlewares[$middleware]) && is_array($middlewares[$middleware])) 
+                
+            } else if(
+                !empty($middlewares[$middleware]) && 
+                is_array($middlewares[$middleware])
+            )
             {
                 foreach ($middlewares[$middleware] as $key => $m) {
                     if(!$this->middleware($m, $params)) 
@@ -142,12 +149,15 @@ class Application
         {
             $this->log()->error($e->getMessage());
             $this->log()->error($e->getTraceAsString());
-            if($e instanceof  AppException){
-                $e->handler();
+            if($debugExeption) {
+                $debugExeption->handleException($e);
+            } else {
+                if($e instanceof  AppException){
+                    $e->handler();
+                }
+                // TODO catch default exception
+                view()->setViewRender('Exceptions/default')->withData(['error' => $e])->send();
             }
-            if($debugExeption) $debugExeption->handleException($e);
-            // TODO catch default exception
-            view()->setViewRender('Exceptions/default')->withData(['error' => $e])->send();
         }
         
     }
@@ -171,9 +181,6 @@ class Application
         $handler->addDataTableCallback('Details', function(\Whoops\Exception\Inspector $inspector) {
             $data = array();
             $exception = $inspector->getException();
-            if ($exception instanceof SomeSpecificException) {
-                $data['Important exception data'] = $exception->getSomeSpecificData();
-            }
             $data['Exception class'] = get_class($exception);
             $data['Exception code'] = $exception->getCode();
             return $data;

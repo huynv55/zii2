@@ -2,8 +2,6 @@
 /**
  * Zii - A PHP Framework For Web Artisans
  */
-set_time_limit(600);
-ini_set("memory_limit", -1);
 
 define("ROOT_PATH", realpath(__DIR__.'/../').DIRECTORY_SEPARATOR);
 define("APP_PATH", realpath(__DIR__.'/../App/').DIRECTORY_SEPARATOR);

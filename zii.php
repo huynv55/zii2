@@ -1,7 +1,4 @@
 <?php
-/**
- * Zii - A PHP Framework For Web Artisans
- */
 set_time_limit(600);
 ini_set("memory_limit", -1);
 
@@ -12,19 +9,11 @@ define("TEMPLATE_PATH", realpath(__DIR__.'/../templates/pages'));
 
 require realpath(__DIR__.'/../vendor/autoload.php');
 
-$dotenv = \Dotenv\Dotenv::createImmutable(dirname(__DIR__));
+$dotenv = \Dotenv\Dotenv::createImmutable(__DIR__);
 $dotenv->load();
 
-require realpath(__DIR__.'/../bootstrap/func.php');
-require realpath(__DIR__.'/../bootstrap/loader.php');
+$argvs = $_SERVER['argv'];
+$action = !empty($argvs[1]) ? $argvs[1] : 'init';
 
-try {
-/**
- * run application
- */
-(require realpath(__DIR__.'/../bootstrap/app.php'))->run();
-}
-catch (\Exception $e) {
-    echo $e->getMessage();
-}
+require realpath(__DIR__.'/consoles/'.$action.'.php');
 ?>

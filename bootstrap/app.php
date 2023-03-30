@@ -1,16 +1,44 @@
-<?php
-use App\Application;
+<?php 
 
-$builder = new \DI\ContainerBuilder();
-//$builder->useAutowiring(false);
-//$builder->useAnnotations(false);
-//$builder->enableCompilation(__DIR__ . '/../tmp');
-$dependencies = require __DIR__."/../config/dependencies.php";
-$builder->addDefinitions($dependencies);
-$container = $builder->build();
+class ZiiAppFramework {
+	
+	public function dispatch(): array
+	{
+		$path = explode('/', $_SERVER['REQUEST_URI']);
+		$controller = 'HomeController';
+		if (!empty($path[1])) {
+			$controller = ucwords($path[1], "_").'Controller';
+		}
+		$action = $path[2] ?? 'index';
+		$params = [];
+		if(count($path) > 3) {
+			for ($i = 3; $i < count($path); $i++) {
+				$params[] = $path[$i];
+			}
+		}
+		return compact('controller', 'action', 'params');
+	}
 
-$GLOBALS[CONTAINER_NAME] = $container;
-$GLOBALS[APPLICATION_NAME] = $container->get(Application::class);
+	public function run() {
+		$routeInfo = $this->dispatch();
+		$GLOBALS['routeInfo'] = $routeInfo;
+		$controller = ApplicationLoader::controller($routeInfo['controller']);
+		$controllerClass = get_class($controller);
+		if ( method_exists($controllerClass, $routeInfo['action']) ) {
+			$reflection = new ReflectionMethod($controllerClass, $routeInfo['action']);
+			$numberOfParameter = $reflection->getNumberOfParameters();
+			$numberOfRequiredParameter = $reflection->getNumberOfRequiredParameters();
+			$params = array_splice($routeInfo['params'], 0, $numberOfParameter);
+			if (count($params) >= $numberOfRequiredParameter) {
+				$reflection->invokeArgs($controller, $params);
+			} else {
+				throw new \Exception('Can not run Application');
+			}
+		} else {
+			throw new \Exception('Method '.$controllerClass.'::'.$routeInfo['action'].' not found');
+		}
+	}
+}
 
-return $GLOBALS['app'];
+return new ZiiAppFramework();
 ?>

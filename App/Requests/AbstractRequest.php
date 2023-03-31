@@ -9,11 +9,17 @@ abstract class AbstractRequest implements initializeLoader
 
     public function initialize()
     {
-        $headers = [];
-        foreach (getallheaders() as $header => $value) {
-            $headers[strtolower($header)] = $value;
+        if(!is_cli()) {
+            $headers = [];
+            foreach (getallheaders() as $header => $value) {
+                $headers[strtolower($header)] = $value;
+            }
+            $this->headers = $headers;
+        } else 
+        {
+            $this->headers = [];
         }
-        $this->headers = $headers;
+        
     }
 
     public function header(string $name, string $default = null)

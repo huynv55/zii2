@@ -4,6 +4,26 @@ use League\Plates\Extension\URI as URIHepler;
 use League\Plates\Extension\Asset as AssetHepler;
 
 /**
+ * determine if the current invocation is from CLI
+ *
+ * @return boolean
+ */
+function is_cli() : bool
+{
+    return ( 
+        defined('STDIN') 
+        or
+        php_sapi_name() === 'cli'
+        or
+        array_key_exists('SHELL', $_ENV)
+        or
+        (empty($_SERVER['REMOTE_ADDR']) and !isset($_SERVER['HTTP_USER_AGENT']) and count($_SERVER['argv']) > 0)
+        or
+        !array_key_exists('REQUEST_METHOD', $_SERVER)
+    );
+}
+
+/**
  * get environment variable value
  *
  * @param string $env
@@ -38,7 +58,7 @@ function phpRender(): PhpRenderer
         return $GLOBALS[PhpRenderer::class];
     } else {
         $template = new PhpRenderer(TEMPLATE_PATH);
-        $template->loadExtension(new URIHepler($_SERVER['REQUEST_URI']));
+        $template->loadExtension(new URIHepler($_SERVER['REQUEST_URI'] ?? '/'));
         $template->loadExtension(new AssetHepler(PUBLIC_PATH));
         $GLOBALS[PhpRenderer::class] = $template;
         return $GLOBALS[PhpRenderer::class];

@@ -4,7 +4,12 @@ class ZiiAppFramework {
 	
 	public function dispatch(): array
 	{
-		$path = explode('/', $_SERVER['REQUEST_URI']);
+		if (!is_cli()) {
+			$path = explode('/', $_SERVER['REQUEST_URI']);
+		} else {
+			$path = $GLOBALS['argv'];
+		}
+		
 		$controller = 'HomeController';
 		if (!empty($path[1])) {
 			$controller = ucwords($path[1], "_").'Controller';

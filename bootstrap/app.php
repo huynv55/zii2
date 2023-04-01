@@ -24,9 +24,30 @@ class ZiiAppFramework {
 		return compact('controller', 'action', 'params');
 	}
 
+	/**
+	 * run application
+	 *
+	 * @return void
+	 */
 	public function run() {
+		/**
+		 * start session instance
+		 */
+		session()->start();
+		
 		$routeInfo = $this->dispatch();
 		$GLOBALS['routeInfo'] = $routeInfo;
+		$this->makeResponse($routeInfo);
+	}
+
+	/**
+	 * return response from router dispatch
+	 *
+	 * @param array $routeInfo
+	 * @return void
+	 */
+	private function makeResponse(array $routeInfo)
+	{
 		$controller = ApplicationLoader::controller($routeInfo['controller']);
 		$controllerClass = get_class($controller);
 		if ( method_exists($controllerClass, $routeInfo['action']) ) {

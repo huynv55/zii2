@@ -14,7 +14,6 @@
         "league/plates": "^3.5",
         "mongodb/mongodb": "^1.8",
         "monolog/monolog": "^3.2",
-        "phpoffice/phpspreadsheet": "^1.28",
         "symfony/var-dumper": "^5.1",
         "vlucas/phpdotenv": "^5.4"
     },

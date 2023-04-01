@@ -13,8 +13,8 @@ require realpath(__DIR__.'/../vendor/autoload.php');
 $dotenv = \Dotenv\Dotenv::createImmutable(dirname(__DIR__));
 $dotenv->load();
 
-require realpath(__DIR__.'/../bootstrap/func.php');
 require realpath(__DIR__.'/../bootstrap/loader.php');
+require realpath(__DIR__.'/../bootstrap/func.php');
 
 try {
 /**

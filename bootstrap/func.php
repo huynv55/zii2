@@ -1,7 +1,33 @@
 <?php
+
+use App\Responses\HtmlExtensions\FormHelper;
+use App\Responses\HtmlExtensions\PaginateHelper;
+use App\Services\SessionService;
+use App\Services\FlashSessionService;
 use League\Plates\Engine as PhpRenderer;
 use League\Plates\Extension\URI as URIHepler;
 use League\Plates\Extension\Asset as AssetHepler;
+
+/**
+ * get instance application session
+ *
+ * @return SessionService
+ */
+function session(): SessionService
+{
+    return ApplicationLoader::service(SessionService::class);
+}
+
+
+/**
+ * get instance application flash session
+ *
+ * @return FlashSessionService
+ */
+function flash(): FlashSessionService
+{
+    return ApplicationLoader::service(FlashSessionService::class);
+}
 
 /**
  * determine if the current invocation is from CLI
@@ -60,6 +86,8 @@ function phpRender(): PhpRenderer
         $template = new PhpRenderer(TEMPLATE_PATH);
         $template->loadExtension(new URIHepler($_SERVER['REQUEST_URI'] ?? '/'));
         $template->loadExtension(new AssetHepler(PUBLIC_PATH));
+        $template->loadExtension(new FormHelper());
+        $template->loadExtension(new PaginateHelper());
         $GLOBALS[PhpRenderer::class] = $template;
         return $GLOBALS[PhpRenderer::class];
     }
@@ -94,5 +122,41 @@ function db(): \PDO
         $GLOBALS[\PDO::class]->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         return $GLOBALS[\PDO::class];
     }
+}
+
+/**
+ * generate csrf_token
+ *
+ * @return string
+ */
+function csrf_token(): string
+{
+    if (session()->has('csrf_token')) {
+		return session()->get('csrf_token');
+	}
+	$token = bin2hex(random_bytes(35));
+	session()->set('csrf_token', $token);
+	return $token;
+}
+
+/**
+ * input_csrf_token render input csrf token
+ *
+ * @return string
+ */
+function input_csrf_token() : string
+{
+    return '<input type="hidden" name="csrf_token" value="'.csrf_token().'" />';
+}
+
+/**
+ * verified csrf token
+ *
+ * @return boolean
+ */
+function csrf_token_verified(string $token): bool
+{
+	$csrf = session()->remove('csrf_token');
+	return ($token == $csrf);
 }
 ?>

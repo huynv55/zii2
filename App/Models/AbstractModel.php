@@ -60,6 +60,11 @@ abstract class AbstractModel implements initializeLoader
         return $stmp;
     }
 
+    public function executeAssoc(): PDOStatement
+    {
+        return $this->execute(false);
+    }
+
     public function setQuery(string $sql): self
     {
         $this->query = $sql;

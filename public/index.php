@@ -16,13 +16,20 @@ $dotenv->load();
 require realpath(__DIR__.'/../bootstrap/loader.php');
 require realpath(__DIR__.'/../bootstrap/func.php');
 
-try {
+$app = require realpath(__DIR__.'/../bootstrap/app.php');
 /**
- * run application
+ * @var ZiiAppFramework $app
  */
-(require realpath(__DIR__.'/../bootstrap/app.php'))->run();
+$debugExeption = $app->whoops_add_stack_frame();
+try {
+    $app->run();
 }
-catch (\Exception $e) {
-    echo $e->getMessage();
+catch (\Throwable $e) {
+    if(env('APP_DEBUG', 0)) {
+        $debugExeption->handleException($e);
+    } else {
+        echo $e->getMessage();
+        // TODO catch default exception
+    }
 }
 ?>

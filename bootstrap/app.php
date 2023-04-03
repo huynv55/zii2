@@ -40,6 +40,40 @@ class ZiiAppFramework {
 		$this->makeResponse($routeInfo);
 	}
 
+	public function whoops_add_stack_frame(): \Whoops\Run|NULL
+    {
+        if(!env('APP_DEBUG'))
+        {
+            return null;
+        }
+        $run     = new \Whoops\Run();
+        $handler = new \Whoops\Handler\PrettyPageHandler();
+
+        $handler->setApplicationPaths([__FILE__]);
+
+        $handler->addDataTableCallback('Details', function(\Whoops\Exception\Inspector $inspector) {
+            $data = array();
+            $exception = $inspector->getException();
+            $data['Exception class'] = get_class($exception);
+            $data['Exception code'] = $exception->getCode();
+            return $data;
+        });
+
+        $run->pushHandler($handler);
+
+        // Example: tag all frames inside a function with their function name
+        $run->pushHandler(function ($exception, $inspector, $run) {
+            $inspector->getFrames()->map(function ($frame) {
+                if ($function = $frame->getFunction()) {
+                    $frame->addComment("This frame is within function '$function'", 'whoops');
+                }
+                return $frame;
+            });
+        });
+        $run->register();
+        return $run;
+    }
+
 	/**
 	 * return response from router dispatch
 	 *

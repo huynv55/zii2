@@ -32,6 +32,10 @@ class ApplicationLoader
         if (!class_exists($class)) {
             throw new \Exception($class." not exists");
         }
+        $ref = new ReflectionClass($class);
+        if (!in_array('initializeLoader', $ref->getInterfaceNames())) {
+            throw new \Exception($class." must implements initializeLoader");
+        }
         $instance = new $class();
         $instance->initialize();
         return $instance;

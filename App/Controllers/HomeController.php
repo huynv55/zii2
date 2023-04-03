@@ -3,6 +3,7 @@ namespace App\Controllers;
 
 use App\Repositories\UserRepository;
 use ApplicationLoader;
+use Whoops\Run;
 
 class HomeController extends AppController
 {

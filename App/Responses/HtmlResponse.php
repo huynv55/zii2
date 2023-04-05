@@ -13,6 +13,9 @@ class HtmlResponse extends AbstractResponse
     {
         parent::initialize();
         $this->template = phpRender();
+        $this->headers = [
+            'Content-type' => 'text/html'
+        ];
     }
 
     public function withData(array $data) : HtmlResponse

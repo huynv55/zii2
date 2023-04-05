@@ -9,6 +9,11 @@ class HtmlResponse extends AbstractResponse
     protected string $view = 'index';
     protected array $data = [];
 
+    public function __construct()
+    {
+        
+    }
+
     public function initialize()
     {
         parent::initialize();

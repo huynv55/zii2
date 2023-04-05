@@ -14,5 +14,10 @@ class Permission extends AbstractEntity
     public ?string $description = null;
     public ?string $created_at = null;
     public ?string $updated_at = null;
+
+    public function __construct()
+    {
+        
+    }
 }
 ?>

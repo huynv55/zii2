@@ -10,6 +10,11 @@ class SessionService extends AbstractService
 
     private static bool $started = false;
 
+    public function __construct()
+    {
+        
+    }
+
     public function start()
     {
         if (self::$started) {

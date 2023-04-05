@@ -10,5 +10,10 @@ class Auth extends AbstractEntity
     public ?bool $active = null;
     public ?string $last_login_at = null;
     public ?string $created_at = null;
+
+    public function __construct()
+    {
+        
+    }
 }
 ?>

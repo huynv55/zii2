@@ -10,6 +10,11 @@ class AppController extends AbstractController
     protected HtmlResponse $response;
     protected AppRequest $request;
 
+    public function __construct()
+    {
+        
+    }
+
     public function initialize()
     {
         parent::initialize();

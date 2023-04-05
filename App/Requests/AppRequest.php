@@ -3,6 +3,11 @@ namespace App\Requests;
 
 class AppRequest extends AbstractRequest
 {
+    public function __construct()
+    {
+        
+    }
+    
 	public function initialize()
 	{
 		parent::initialize();

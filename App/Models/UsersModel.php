@@ -11,6 +11,11 @@ class UsersModel extends AbstractModel
     const TABLE_USER_ROLE = 'user_role';
     const TABLE_ROLE_PERMISSION = 'role_permission';
 
+    public function __construct()
+    {
+        
+    }
+
     public function initialize()
     {
         parent::initialize();

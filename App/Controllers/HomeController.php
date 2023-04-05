@@ -3,20 +3,26 @@ namespace App\Controllers;
 
 use App\Repositories\UserRepository;
 use ApplicationLoader;
-use Whoops\Run;
 
 class HomeController extends AppController
 {
-    protected UserRepository $repository;
+
+    public function __construct(
+        protected UserRepository $repository
+    )
+    {
+        
+    }
 
     public function initialize()
     {
         parent::initialize();
-        $this->repository = ApplicationLoader::repository(UserRepository::class);
     }
 
     public function index()
     {
+        $users = $this->repository->getAllUser();
+        dd($users);
         $this->render('index');
     }
 

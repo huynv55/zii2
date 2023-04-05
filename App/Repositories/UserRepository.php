@@ -8,6 +8,11 @@ class UserRepository extends AbstractRepository
 {
     protected UsersModel $userModel;
 
+    public function __construct()
+    {
+        
+    }
+
     public function initialize()
     {
         parent::initialize();

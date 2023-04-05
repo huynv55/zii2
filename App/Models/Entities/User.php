@@ -15,5 +15,10 @@ class User extends AbstractEntity
     public ?string $account_verified_at = null;
     public ?string $created_at = null;
     public ?string $updated_at = null;
+
+    public function __construct()
+    {
+        
+    }
 }
 ?>

@@ -27,7 +27,7 @@ class ApplicationLoader
         return $GLOBALS[$class];
     }
 
-    public static function make(string $class): initializeLoader
+    public static function make(string $class): ?initializeLoader
     {
         if (!class_exists($class)) {
             throw new \Exception($class." not exists");
@@ -36,8 +36,23 @@ class ApplicationLoader
         if (!in_array('initializeLoader', $ref->getInterfaceNames())) {
             throw new \Exception($class." must implements initializeLoader");
         }
-        $instance = new $class();
-        $instance->initialize();
+        $contructor = $ref->getConstructor();
+        $params = [];
+        foreach ($contructor->getParameters() as $key => $param) {
+            /**
+             * @var ReflectionParameter $params
+             */
+            $type = $param->getType()->getName();
+            if(class_exists($type)) {
+                $params[] = self::get($type);
+            }
+            else if($param->isOptional()) {
+                $params[] = $param->getDefaultValue();
+            }
+        }
+
+        $instance = $ref->newInstanceArgs($params);
+        $instance?->initialize();
         return $instance;
     }
 

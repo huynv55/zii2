@@ -2,13 +2,12 @@
 namespace App\Repositories;
 
 use App\Models\UsersModel;
-use ApplicationLoader;
 
 class UserRepository extends AbstractRepository
 {
-    protected UsersModel $userModel;
-
-    public function __construct()
+    public function __construct(
+        protected UsersModel $userModel
+    )
     {
         
     }
@@ -16,7 +15,6 @@ class UserRepository extends AbstractRepository
     public function initialize()
     {
         parent::initialize();
-        $this->userModel = ApplicationLoader::model(UsersModel::class);
     }
 
     public function getAllUser()

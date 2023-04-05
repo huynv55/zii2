@@ -15,6 +15,11 @@ class SessionService extends AbstractService
         
     }
 
+    public function initialize()
+    {
+        parent::initialize();
+    }
+
     public function start()
     {
         if (self::$started) {

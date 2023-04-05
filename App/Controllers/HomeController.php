@@ -2,7 +2,6 @@
 namespace App\Controllers;
 
 use App\Repositories\UserRepository;
-use ApplicationLoader;
 
 class HomeController extends AppController
 {
@@ -21,8 +20,6 @@ class HomeController extends AppController
 
     public function index()
     {
-        $users = $this->repository->getAllUser();
-        dd($users);
         $this->render('index');
     }
 

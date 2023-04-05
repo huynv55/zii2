@@ -5,11 +5,12 @@ use League\Plates\Engine as PhpRenderer;
 
 class HtmlResponse extends AbstractResponse
 {
-    protected PhpRenderer $template;
     protected string $view = 'index';
     protected array $data = [];
 
-    public function __construct()
+    public function __construct(
+        protected PhpRenderer $template
+    )
     {
         
     }
@@ -17,7 +18,6 @@ class HtmlResponse extends AbstractResponse
     public function initialize()
     {
         parent::initialize();
-        $this->template = phpRender();
     }
 
     public function withData(array $data) : HtmlResponse

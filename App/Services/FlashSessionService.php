@@ -10,6 +10,11 @@ class FlashSessionService extends SessionService
         parent::__construct();
     }
 
+    public function initialize()
+    {
+        parent::initialize();
+    }
+
     public function get(string $name, mixed $default = null)
     {
         $value = parent::get($name, $default);

@@ -37,21 +37,24 @@ class ApplicationLoader
             throw new \Exception($class." must implements initializeLoader");
         }
         $contructor = $ref->getConstructor();
-        $params = [];
-        foreach ($contructor->getParameters() as $key => $param) {
-            /**
-             * @var ReflectionParameter $params
-             */
-            $type = $param->getType()->getName();
-            if(class_exists($type)) {
-                $params[] = self::get($type);
+        if (is_null($contructor)) {
+            $instance = new $class();
+        } else {
+            $params = [];
+            foreach ($contructor->getParameters() as $key => $param) {
+                /**
+                 * @var ReflectionParameter $params
+                 */
+                $type = $param->getType()->getName();
+                if(class_exists($type)) {
+                    $params[] = self::get($type);
+                }
+                else if($param->isOptional()) {
+                    $params[] = $param->getDefaultValue();
+                }
             }
-            else if($param->isOptional()) {
-                $params[] = $param->getDefaultValue();
-            }
+            $instance = $ref->newInstanceArgs($params);
         }
-
-        $instance = $ref->newInstanceArgs($params);
         $instance?->initialize();
         return $instance;
     }

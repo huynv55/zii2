@@ -1,9 +1,23 @@
-<?php 
+<?php
+
+use FastRoute\Dispatcher;
+
+use function FastRoute\cachedDispatcher;
+use function FastRoute\simpleDispatcher;
 
 class ZiiAppFramework {
+	protected Dispatcher $dispatcher;
+
+	protected function router() : Dispatcher
+	{
+		$func = require __DIR__.'/../routers/index.php';
+		$this->dispatcher = simpleDispatcher($func);
+		return $this->dispatcher;
+	}
 	
 	public function dispatch(): array
 	{
+
 		if (!is_cli()) {
 			$path = explode('/', $_SERVER['REQUEST_URI']);
 		} else {
@@ -21,7 +35,33 @@ class ZiiAppFramework {
 				$params[] = $path[$i];
 			}
 		}
-		return compact('controller', 'action', 'params');
+		$routeInfo = compact('controller', 'action', 'params');
+		if (!is_cli())
+		{
+			// Fetch method and URI from somewhere
+			$httpMethod = $_SERVER['REQUEST_METHOD'];
+			$uri = $_SERVER['REQUEST_URI'];
+			// Strip query string (?foo=bar) and decode URI
+			if (false !== $pos = strpos($uri, '?')) {
+				$uri = substr($uri, 0, $pos);
+			}
+			$uri = rawurldecode($uri);
+			$routeInfo2 = $this->router()->dispatch($httpMethod, $uri);
+			switch ($routeInfo2[0]) {
+				case \FastRoute\Dispatcher::NOT_FOUND:
+					// 404 not found
+					break;
+				case \FastRoute\Dispatcher::METHOD_NOT_ALLOWED:
+					// 404 method not allow
+					break;
+				case \FastRoute\Dispatcher::FOUND:
+					$info = call_user_func_array($routeInfo2[1], $routeInfo2[2] ?? []);
+					$routeInfo = array_merge($routeInfo, $info);
+					$routeInfo['params'] = $routeInfo2[2] ?? [];
+					break;
+			}
+		}
+		return $routeInfo;
 	}
 
 	/**
@@ -41,38 +81,38 @@ class ZiiAppFramework {
 	}
 
 	public function whoops_add_stack_frame(): \Whoops\Run|NULL
-    {
-        if(!env('APP_DEBUG'))
-        {
-            return null;
-        }
-        $run     = new \Whoops\Run();
-        $handler = new \Whoops\Handler\PrettyPageHandler();
+	{
+		if(!env('APP_DEBUG'))
+		{
+			return null;
+		}
+		$run     = new \Whoops\Run();
+		$handler = new \Whoops\Handler\PrettyPageHandler();
 
-        $handler->setApplicationPaths([__FILE__]);
+		$handler->setApplicationPaths([__FILE__]);
 
-        $handler->addDataTableCallback('Details', function(\Whoops\Exception\Inspector $inspector) {
-            $data = array();
-            $exception = $inspector->getException();
-            $data['Exception class'] = get_class($exception);
-            $data['Exception code'] = $exception->getCode();
-            return $data;
-        });
+		$handler->addDataTableCallback('Details', function(\Whoops\Exception\Inspector $inspector) {
+			$data = array();
+			$exception = $inspector->getException();
+			$data['Exception class'] = get_class($exception);
+			$data['Exception code'] = $exception->getCode();
+			return $data;
+		});
 
-        $run->pushHandler($handler);
+		$run->pushHandler($handler);
 
-        // Example: tag all frames inside a function with their function name
-        $run->pushHandler(function ($exception, $inspector, $run) {
-            $inspector->getFrames()->map(function ($frame) {
-                if ($function = $frame->getFunction()) {
-                    $frame->addComment("This frame is within function '$function'", 'whoops');
-                }
-                return $frame;
-            });
-        });
-        $run->register();
-        return $run;
-    }
+		// Example: tag all frames inside a function with their function name
+		$run->pushHandler(function ($exception, $inspector, $run) {
+			$inspector->getFrames()->map(function ($frame) {
+				if ($function = $frame->getFunction()) {
+					$frame->addComment("This frame is within function '$function'", 'whoops');
+				}
+				return $frame;
+			});
+		});
+		$run->register();
+		return $run;
+	}
 
 	/**
 	 * return response from router dispatch

@@ -25,5 +25,16 @@ abstract class AbstractEntity implements EntityInterface
         }
         return $data;
     }
+
+    /**
+     * validate entity data
+     *
+     * @return array message validatetion
+     * @return array empty if validation pass
+     */
+    public function validate(): array
+    {
+        return [];
+    }
 }
 ?>

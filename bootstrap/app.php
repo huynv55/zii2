@@ -3,15 +3,20 @@
 use FastRoute\Dispatcher;
 
 use function FastRoute\cachedDispatcher;
-use function FastRoute\simpleDispatcher;
+//use function FastRoute\simpleDispatcher;
 
 class ZiiAppFramework {
-	protected Dispatcher $dispatcher;
+	protected ?Dispatcher $dispatcher = null;
 
 	protected function router() : Dispatcher
 	{
-		$func = require __DIR__.'/../routers/index.php';
-		$this->dispatcher = simpleDispatcher($func);
+		if (is_null($this->dispatcher)) {
+			$func = require __DIR__.'/../routers/index.php';
+			$this->dispatcher = cachedDispatcher($func, [
+				'cacheFile' => __DIR__.'/../tmp/route_cache.php',
+				'cacheDisabled' => boolval(env('APP_DEBUG', 1))
+			]);
+		}
 		return $this->dispatcher;
 	}
 	

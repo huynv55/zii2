@@ -7,6 +7,43 @@ use App\Services\FlashSessionService;
 use League\Plates\Engine as PhpRenderer;
 use League\Plates\Extension\URI as URIHepler;
 use League\Plates\Extension\Asset as AssetHepler;
+use Monolog\Handler\StreamHandler;
+use Monolog\Level;
+use Monolog\Logger;
+use Monolog\Processor\UidProcessor;
+use Monolog\Formatter\LineFormatter;
+/**
+ * get instance class Monolog\Logger
+ *
+ * @return Logger
+ */
+function logger() : Logger
+{
+    if(
+        !empty($GLOBALS[Logger::class])
+        and
+        $GLOBALS[Logger::class] instanceof Logger
+    ) {
+        return $GLOBALS[Logger::class];
+    }
+    $loggerSettings = [
+        'name' => 'zii2-app',
+        'display_error_details' => false,
+        'log_errors' => true,
+        'path' => __DIR__ . '/../tmp/logs/app.log',
+        'level' => Level::Debug
+    ];
+    $logger = new Logger($loggerSettings['name']);
+
+    $processor = new UidProcessor();
+    $logger->pushProcessor($processor);
+    $formatter = new LineFormatter(null,null,true);
+    $handler = new StreamHandler($loggerSettings['path'], $loggerSettings['level']);
+    $handler->setFormatter($formatter);
+    $logger->pushHandler($handler);
+    $GLOBALS[Logger::class] = $logger;
+    return $GLOBALS[Logger::class];
+}
 
 /**
  * get instance application session
@@ -82,15 +119,14 @@ function phpRender(): PhpRenderer
         $GLOBALS[PhpRenderer::class] instanceof PhpRenderer
     ) {
         return $GLOBALS[PhpRenderer::class];
-    } else {
-        $template = new PhpRenderer(TEMPLATE_PATH);
-        $template->loadExtension(new URIHepler($_SERVER['REQUEST_URI'] ?? '/'));
-        $template->loadExtension(new AssetHepler(PUBLIC_PATH));
-        $template->loadExtension(new FormHelper());
-        $template->loadExtension(new PaginateHelper());
-        $GLOBALS[PhpRenderer::class] = $template;
-        return $GLOBALS[PhpRenderer::class];
     }
+    $template = new PhpRenderer(TEMPLATE_PATH);
+    $template->loadExtension(new URIHepler($_SERVER['REQUEST_URI'] ?? '/'));
+    $template->loadExtension(new AssetHepler(PUBLIC_PATH));
+    $template->loadExtension(new FormHelper());
+    $template->loadExtension(new PaginateHelper());
+    $GLOBALS[PhpRenderer::class] = $template;
+    return $GLOBALS[PhpRenderer::class];
 }
 
 /**
@@ -105,23 +141,22 @@ function db(): \PDO
         $GLOBALS[\PDO::class] instanceof \PDO
     ) {
         return $GLOBALS[\PDO::class];
-    } else {
-        $mysql = [
-            'host' => env('MYSQL_HOST', 'localhost'),
-            'user' => env('MYSQL_USER', 'root'),
-            'password' => env('MYSQL_PASSWORD', ''),
-            'port' => env('MYSQL_PORT', 3306),
-            'db' => env('MYSQL_DB'),
-            'charset' => env('MYSQL_CHARSET', 'utf8mb4')
-        ];
-        $dsn = "mysql:host=". $mysql['host'] .";port=". $mysql['port'].";dbname=".$mysql['db'].";charset=".$mysql['charset'];
-        $opts = [];
-        $opts[\PDO::MYSQL_ATTR_INIT_COMMAND] = "SET NAMES 'utf8mb4';";
-        $opts[\PDO::ATTR_PERSISTENT] = true;
-        $GLOBALS[\PDO::class] = new \PDO($dsn, $mysql['user'], $mysql['password'], $opts);
-        $GLOBALS[\PDO::class]->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-        return $GLOBALS[\PDO::class];
     }
+    $mysql = [
+        'host' => env('MYSQL_HOST', 'localhost'),
+        'user' => env('MYSQL_USER', 'root'),
+        'password' => env('MYSQL_PASSWORD', ''),
+        'port' => env('MYSQL_PORT', 3306),
+        'db' => env('MYSQL_DB'),
+        'charset' => env('MYSQL_CHARSET', 'utf8mb4')
+    ];
+    $dsn = "mysql:host=". $mysql['host'] .";port=". $mysql['port'].";dbname=".$mysql['db'].";charset=".$mysql['charset'];
+    $opts = [];
+    $opts[\PDO::MYSQL_ATTR_INIT_COMMAND] = "SET NAMES 'utf8mb4';";
+    $opts[\PDO::ATTR_PERSISTENT] = true;
+    $GLOBALS[\PDO::class] = new \PDO($dsn, $mysql['user'], $mysql['password'], $opts);
+    $GLOBALS[\PDO::class]->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+    return $GLOBALS[\PDO::class];
 }
 
 /**

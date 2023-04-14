@@ -2,11 +2,7 @@
 /**
  * Zii - A PHP Framework For Web Artisans
  */
-
-define("ROOT_PATH", realpath(__DIR__.'/../').DIRECTORY_SEPARATOR);
-define("APP_PATH", realpath(__DIR__.'/../App/').DIRECTORY_SEPARATOR);
-define("PUBLIC_PATH", realpath(__DIR__.'/../public'));
-define("TEMPLATE_PATH", realpath(__DIR__.'/../templates/pages'));
+require realpath(__DIR__.'/../bootstrap/constant.php');
 
 require realpath(__DIR__.'/../vendor/autoload.php');
 
@@ -28,8 +24,10 @@ catch (\Throwable $e) {
     if(env('APP_DEBUG', 0)) {
         $debugExeption->handleException($e);
     } else {
-        echo $e->getMessage();
         // TODO catch default exception
+        logger()->error($e->getMessage());
+        logger()->error(PHP_EOL. $e->getTraceAsString());
+        echo $e->getMessage();
     }
 }
 ?>

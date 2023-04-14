@@ -2,8 +2,7 @@
 
 use FastRoute\Dispatcher;
 
-use function FastRoute\cachedDispatcher;
-//use function FastRoute\simpleDispatcher;
+use function FastRoute\simpleDispatcher;
 
 class ZiiAppFramework {
 	protected ?Dispatcher $dispatcher = null;
@@ -12,23 +11,14 @@ class ZiiAppFramework {
 	{
 		if (is_null($this->dispatcher)) {
 			$func = require __DIR__.'/../routers/index.php';
-			$this->dispatcher = cachedDispatcher($func, [
-				'cacheFile' => __DIR__.'/../tmp/route_cache.php',
-				'cacheDisabled' => boolval(env('APP_DEBUG', 1))
-			]);
+			$this->dispatcher = simpleDispatcher($func);
 		}
 		return $this->dispatcher;
 	}
-	
-	public function dispatch(): array
-	{
 
-		if (!is_cli()) {
-			$path = explode('/', $_SERVER['REQUEST_URI']);
-		} else {
-			$path = $GLOBALS['argv'];
-		}
-		
+	protected function dispatchCli(): array
+	{
+		$path = $GLOBALS['argv'];
 		$controller = 'HomeController';
 		if (!empty($path[1])) {
 			$controller = ucwords($path[1], "_").'Controller';
@@ -41,30 +31,53 @@ class ZiiAppFramework {
 			}
 		}
 		$routeInfo = compact('controller', 'action', 'params');
-		if (!is_cli())
+		return $routeInfo;
+	}
+	
+	public function dispatch(): array
+	{
+		if (!empty($GLOBALS['routeInfo']) and is_array($GLOBALS['routeInfo']))
 		{
-			// Fetch method and URI from somewhere
-			$httpMethod = $_SERVER['REQUEST_METHOD'];
-			$uri = $_SERVER['REQUEST_URI'];
-			// Strip query string (?foo=bar) and decode URI
-			if (false !== $pos = strpos($uri, '?')) {
-				$uri = substr($uri, 0, $pos);
-			}
-			$uri = rawurldecode($uri);
-			$routeInfo2 = $this->router()->dispatch($httpMethod, $uri);
-			switch ($routeInfo2[0]) {
-				case \FastRoute\Dispatcher::NOT_FOUND:
-					// 404 not found
-					break;
-				case \FastRoute\Dispatcher::METHOD_NOT_ALLOWED:
-					// 404 method not allow
-					break;
-				case \FastRoute\Dispatcher::FOUND:
+			return $GLOBALS['routeInfo'];
+		}
+		if (is_cli())
+		{
+			return $this->dispatchCli();
+		}
+		$controller = 'HomeController';
+		$action = 'index';
+		$params = [];
+		$routeInfo = compact('controller', 'action', 'params');
+		$httpMethod = $_SERVER['REQUEST_METHOD'];
+		$uri = $_SERVER['REQUEST_URI'];
+		// Strip query string (?foo=bar) and decode URI
+		if (false !== $pos = strpos($uri, '?')) {
+			$uri = substr($uri, 0, $pos);
+		}
+		$uri = rawurldecode($uri);
+		$routeInfo2 = $this->router()->dispatch($httpMethod, $uri);
+		switch ($routeInfo2[0]) {
+			case \FastRoute\Dispatcher::NOT_FOUND:
+				// 404 not found
+				break;
+			case \FastRoute\Dispatcher::METHOD_NOT_ALLOWED:
+				// 404 method not allow
+				break;
+			case \FastRoute\Dispatcher::FOUND:
+				$info = [];
+				if(is_callable($routeInfo2[1])) {
 					$info = call_user_func_array($routeInfo2[1], $routeInfo2[2] ?? []);
-					$routeInfo = array_merge($routeInfo, $info);
-					$routeInfo['params'] = $routeInfo2[2] ?? [];
-					break;
-			}
+				} else if (is_array($routeInfo2[1])) {
+					$info['controller'] = $routeInfo2[1][0] ?? 'HomeController';
+					$info['action'] = $routeInfo2[1][1] ?? 'index';
+				} else if (is_string($routeInfo2[1])) {
+					$tmp = explode('@', $routeInfo2[1]);
+					$info['controller'] = $tmp[0] ?? 'HomeController';
+					$info['action'] = $tmp[1] ?? 'index';
+				}
+				$routeInfo = array_merge($routeInfo, $info);
+				$routeInfo['params'] = $routeInfo2[2] ?? [];
+				break;
 		}
 		return $routeInfo;
 	}

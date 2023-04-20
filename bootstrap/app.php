@@ -19,9 +19,9 @@ class ZiiAppFramework {
 	protected function dispatchCli(): array
 	{
 		$path = $GLOBALS['argv'];
-		$controller = 'HomeController';
+		$controller = 'AppConsole';
 		if (!empty($path[1])) {
-			$controller = ucwords($path[1], "_").'Controller';
+			$controller = ucwords($path[1], "_").'Console';
 		}
 		$action = $path[2] ?? 'index';
 		$params = [];
@@ -30,6 +30,7 @@ class ZiiAppFramework {
 				$params[] = $path[$i];
 			}
 		}
+		$controller = 'Console\\'.$controller;
 		$routeInfo = compact('controller', 'action', 'params');
 		return $routeInfo;
 	}

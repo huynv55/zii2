@@ -264,7 +264,7 @@ abstract class AbstractResponse implements initializeLoader
         if (empty($cookie['value'])) {
             $str .= 'deleted; expires='.gmdate('D, d M Y H:i:s T', time() - 31536001).'; Max-Age=0';
         } else {
-            $str .= rawurlencode($cookie['value']);
+            $str .= rawurlencode(bin2hex($cookie['value']));
 
             if (!empty($cookie['expires'])) {
                 $str .= '; expires='.gmdate('D, d M Y H:i:s T', $cookie['expires']).'; Max-Age='.($cookie['expires'] > time() ? $cookie['expires'] - time(): 0);

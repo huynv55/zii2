@@ -22,7 +22,7 @@ abstract class AbstractRequest implements initializeLoader
         
     }
 
-    public function header(string $name, string $default = null)
+    public function header(string $name, $default = null)
     {
         return $this->headers[strtolower($name)] ?? $default;
     }
@@ -40,6 +40,14 @@ abstract class AbstractRequest implements initializeLoader
     public function isMethod(string $method): bool
     {
         return (strtolower($method) == strtolower($_SERVER['REQUEST_METHOD']));
+    }
+
+    public function cookie(string $key, $default = null)
+    {
+        if(isset($_COOKIE[$key])) {
+            return hex2bin($_COOKIE[$key]);
+        }
+        return $default;
     }
 }
 

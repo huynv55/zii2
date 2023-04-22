@@ -13,14 +13,6 @@ class AppRequest extends AbstractRequest
 		parent::initialize();
 	}
 
-    public function getCookie(string $name = null, mixed $default = null)
-    {
-        if(empty($name)) {
-            return $_COOKIE;
-        }
-        return $_COOKIE[$name] ?? $default;
-    }
-
 	public function getPostData(string $name = null, mixed $default = null)
     {
         if(empty($name)) {

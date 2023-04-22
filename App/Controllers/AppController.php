@@ -2,28 +2,25 @@
 namespace App\Controllers;
 
 use App\Requests\AppRequest;
-use App\Responses\HtmlResponse;
-use App\Responses\JsonResponse;
 use ApplicationLoader;
 
 class AppController extends AbstractController
 {
-    protected HtmlResponse $response;
     protected AppRequest $request;
-    protected JsonResponse $jsonResponse;
 
     public function initialize()
     {
         parent::initialize();
-        $this->response = ApplicationLoader::response(HtmlResponse::class);
-        $this->jsonResponse = ApplicationLoader::response(JsonResponse::class);
         $this->request = ApplicationLoader::request(AppRequest::class);
     }
 
     public function render(string $view, array $data = [])
     {
-        $this
-            ->response
+        $response = ApplicationLoader::response('HtmlResponse');
+        /**
+         * @var \App\Responses\HtmlResponse $response
+         */
+        $response
             ->setTemplateView($view)
             ->withData($data)
             ->send();
@@ -31,7 +28,20 @@ class AppController extends AbstractController
 
     public function json(array $data)
     {
-        $this->jsonResponse->withData($data)->send();
+        $response = ApplicationLoader::response('JsonResponse');
+        /**
+         * @var \App\Responses\JsonResponse $response
+         */
+        $response->withData($data)->send();
+    }
+
+    public function redirect(string $url)
+    {
+        $response = ApplicationLoader::response('RedirectResponse');
+        /**
+         * @var \App\Responses\RedirectResponse $response
+         */
+        $response->redirect($url);
     }
 }
 ?>

@@ -3,6 +3,7 @@ namespace App\Models\Entities;
 
 class Auth extends AbstractEntity
 {
+
     public int $id = 0;
     public ?int $user_id = null;
     public ?string $password = null;
@@ -14,6 +15,11 @@ class Auth extends AbstractEntity
     public function __construct()
     {
         
+    }
+
+    public static function fields(): array
+    {
+        return ['id', 'user_id', 'password', 'token', 'active', 'last_login_at', 'created_at'];
     }
 }
 ?>

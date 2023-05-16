@@ -18,5 +18,10 @@ class Role extends AbstractEntity
     {
         
     }
+
+    public static function fields(): array
+    {
+        return ['id', 'role', 'description', 'active', 'created_at', 'updated_at'];
+    }
 }
 ?>

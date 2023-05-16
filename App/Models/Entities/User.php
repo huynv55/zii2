@@ -22,6 +22,11 @@ class User extends AbstractEntity
         
     }
 
+    public static function fields(): array
+    {
+        return ['id', 'account_name', 'email', 'full_name', 'avatar', 'address', 'region', 'active', 'account_verified_at', 'created_at', 'updated_at'];
+    }
+
     public function validate(): array
     {
         $messages = parent::validate();

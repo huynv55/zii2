@@ -22,11 +22,19 @@ class UsersModel extends AbstractModel
         $this->entityClass = User::class;
     }
 
+    public function fields()
+    {
+        $fields = array_map(function($item) {
+            return '`'.$item.'`';
+        }, User::fields());
+        return implode(', ', $fields);
+    }
+
     public function findAll(): array
     {
         return 
             $this
-                ->setQuery("SELECT * from `".self::TABLE."` WHERE 1")
+                ->setQuery("SELECT ".$this->fields()." FROM `".self::TABLE."` WHERE 1")
                 ->setParams([])
                 ->fetchAll();
     }
@@ -41,7 +49,7 @@ class UsersModel extends AbstractModel
     {
         return 
             $this
-                ->setQuery("SELECT * from `".self::TABLE."` WHERE `id` = :id")
+                ->setQuery("SELECT ".$this->fields()." FROM `".self::TABLE."` WHERE `id` = :id")
                 ->setParams(['id' =>  $id])
                 ->fetch();
     }
@@ -56,7 +64,7 @@ class UsersModel extends AbstractModel
     {
         return 
             $this
-                ->setQuery("SELECT * from `".self::TABLE."` WHERE `id` = :id AND `active` = 1 AND `account_verified_at` IS NOT NULL")
+                ->setQuery("SELECT ".$this->fields()." FROM `".self::TABLE."` WHERE `id` = :id AND `active` = 1 AND `account_verified_at` IS NOT NULL")
                 ->setParams(['id' =>  $id])
                 ->fetch();
     }
@@ -71,7 +79,7 @@ class UsersModel extends AbstractModel
     {
         return 
             $this
-                ->setQuery("SELECT * from `".self::TABLE."` WHERE `account_name` = :account_name AND `active` = 1 AND `account_verified_at` IS NOT NULL")
+                ->setQuery("SELECT ".$this->fields()." FROM `".self::TABLE."` WHERE `account_name` = :account_name AND `active` = 1 AND `account_verified_at` IS NOT NULL")
                 ->setParams(['account_name' =>  $account])
                 ->fetch();
     }
@@ -87,7 +95,7 @@ class UsersModel extends AbstractModel
     {
         $stmp = 
             $this
-                ->setQuery("SELECT * from `".self::TABLE_USER_ROLE."` WHERE `user_id` = :user_id AND `role_id` = :role_id")
+                ->setQuery("SELECT * FROM `".self::TABLE_USER_ROLE."` WHERE `user_id` = :user_id AND `role_id` = :role_id")
                 ->setParams([
                     'user_id' => $user_id,
                     'role_id' => $role_id

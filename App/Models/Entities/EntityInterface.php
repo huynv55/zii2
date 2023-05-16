@@ -8,5 +8,7 @@ interface EntityInterface
     public function toArray(): array;
 
     public function validate(): array;
+
+    public static function fields(): array;
 }
 ?>

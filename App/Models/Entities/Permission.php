@@ -19,5 +19,10 @@ class Permission extends AbstractEntity
     {
         
     }
+
+    public static function fields(): array
+    {
+        return ['id', 'permission', 'description', 'created_at', 'updated_at'];
+    }
 }
 ?>

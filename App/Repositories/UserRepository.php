@@ -1,12 +1,12 @@
 <?php
 namespace App\Repositories;
 
-use App\Models\UsersModel;
+use App\Models\Users;
 
 class UserRepository extends AbstractRepository
 {
     public function __construct(
-        protected UsersModel $userModel
+        protected Users $userModel
     )
     {
         
@@ -20,6 +20,11 @@ class UserRepository extends AbstractRepository
     public function getAllUser()
     {
         return $this->userModel->findAll();
+    }
+
+    public function getUser(int $id)
+    {
+        return $this->userModel->findById($id);
     }
 }
 ?>

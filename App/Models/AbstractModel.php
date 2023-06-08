@@ -276,20 +276,47 @@ abstract class AbstractModel implements initializeLoader
 
     public function beginTransaction()
     {
-        $this->db->beginTransaction();
-        $this->processTransaction = true;
+        if (
+            !isset($GLOBALS['processingPDOTransaction'])
+            or
+            !$GLOBALS['processingPDOTransaction']
+        )
+        {
+            $this->db->beginTransaction();
+            $this->processTransaction = true;
+            $GLOBALS['processingPDOTransaction'] = true;
+        }
+        
     }
 
     public function commit()
     {
-        $this->db->commit();
-        $this->processTransaction = false;
+        if (
+            isset($GLOBALS['processingPDOTransaction'])
+            and
+            $GLOBALS['processingPDOTransaction']
+        )
+        {
+            $this->db->commit();
+            $this->processTransaction = false;
+            $GLOBALS['processingPDOTransaction'] = false;
+        }
+        
     }
 
     public function rollBack()
     {
-        $this->db->rollBack();
-        $this->processTransaction = false;
+        if (
+            isset($GLOBALS['processingPDOTransaction'])
+            and
+            $GLOBALS['processingPDOTransaction']
+        )
+        {
+            $this->db->rollBack();
+            $this->processTransaction = false;
+            $GLOBALS['processingPDOTransaction'] = false;
+        }
+        
     }
 }
 ?>

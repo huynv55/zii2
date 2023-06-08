@@ -10,5 +10,7 @@ interface EntityInterface
     public function validate(): array;
 
     public static function fields(): array;
+
+    public function primaryKey(): string;
 }
 ?>

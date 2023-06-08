@@ -2,11 +2,12 @@
 namespace App\Repositories;
 
 use App\Models\Users;
+use App\Models\UsersModel;
 
 class UserRepository extends AbstractRepository
 {
     public function __construct(
-        protected Users $userModel
+        protected UsersModel $userModel
     )
     {
         

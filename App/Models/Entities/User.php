@@ -48,5 +48,6 @@ class User extends AbstractEntity
         }
         return $messages;
     }
+    
 }
 ?>

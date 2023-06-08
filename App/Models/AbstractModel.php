@@ -1,107 +1,295 @@
 <?php
 namespace App\Models;
 
+use App\Models\Entities\EntityInterface;
 use initializeLoader;
 use PDOStatement;
 
 abstract class AbstractModel implements initializeLoader
 {
-    /**
-     * sql query string execute
-     *
-     * @var string
-     */
-    protected string $query = "";
-
-    /**
-     * all params query
-     *
-     * @var array
-     */
-    protected array $params = [];
-
-    /**
-     * Entity class result
-     *
-     * @var string
-     */
-    protected string $entityClass = '';
-
     protected \PDO $db;
+    protected string $entityClass;
+    protected string $tableName;
+    protected array $query = [];
+    protected array $columns = [];
+    protected bool $processTransaction = false;
 
     public function initialize()
     {
         $this->db = db();
     }
 
-    public function execute(bool $fetchEntity = true): PDOStatement
+    public function find(): self
     {
-        $stmp = $this->db->prepare($this->query);
-        if (!empty($this->entityClass) && $fetchEntity) {
-            $stmp->setFetchMode(\PDO::FETCH_CLASS, $this->entityClass);
-        } else {
-            $stmp->setFetchMode(\PDO::FETCH_ASSOC);
+        $this->query = [];
+
+        return $this;
+    }
+
+    /**
+     * select list fields results.
+     */
+    public function select(array $select): self
+    {
+        $this->query['select'] = $select;
+
+        return $this;
+    }
+
+    public function where(array $where): self
+    {
+        $this->query['where'] = $where;
+
+        return $this;
+    }
+
+    public function orWhere(array $where): self
+    {
+        $this->query['or'] = $where;
+
+        return $this;
+    }
+
+    public function order(string $order): self
+    {
+        $this->query['order'] = $order;
+
+        return $this;
+    }
+
+    public function group(string $group): self
+    {
+        $this->query['group'] = $group;
+
+        return $this;
+    }
+
+    public function having(string $having): self
+    {
+        $this->query['having'] = $having;
+
+        return $this;
+    }
+
+    public function offset(int $offset): self
+    {
+        $this->query['offset'] = $offset;
+
+        return $this;
+    }
+
+    public function limit(int $limit): self
+    {
+        $this->query['limit'] = $limit;
+
+        return $this;
+    }
+
+    public function saveEntity(EntityInterface &$entity)
+    {
+        $columns = $this->getColmuns();
+        $params = [];
+        foreach ($columns as $key => $column) {
+            if ($column != $entity->primaryKey()) {
+                if (gettype($entity->{$column}) == 'boolean') {
+                    $params[$column] = $entity->{$column} ? 1 : 0;
+                } elseif (gettype($entity->{$column}) == 'NULL' or gettype($entity->{$column}) == 'unknown type') {
+                    $params[$column] = null;
+                } else {
+                    $params[$column] = $entity->{$column} ?? null;
+                }
+            }
         }
-        foreach ($this->params as $key => $param) {
+        $primaryValue = $entity->{$entity->primaryKey()} ?? 0;
+        $query = [];
+        $query[] = !empty($primaryValue) ? 'UPDATE' : 'INSERT INTO';
+        $query[] = '`'.$this->tableName.'`';
+
+        // update entity
+        if (!empty($primaryValue)) {
+            $params['updated_at'] = date('Y-m-d H:i:s');
+            $query[] = 'SET';
+            $fields = [];
+            foreach ($columns as $key => $column) {
+                if ($column != $entity->primaryKey()) {
+                    $fields[] = '`'.$column.'` = :'.$column;
+                }
+            }
+            $query[] = implode(', ', $fields);
+            $query[] = 'WHERE `'.$entity->primaryKey().'` = '.$primaryValue;
+            $stmp = $this->db->prepare(implode(' ', $query));
+            $stmp = $this->bindParams($stmp, $params);
+            $stmp->execute();
+        } else { // insert entity
+            $params['created_at'] = date('Y-m-d H:i:s');
+            $params['updated_at'] = date('Y-m-d H:i:s');
+            $fields1 = [];
+            $fields2 = [];
+            foreach ($columns as $key => $column) {
+                if ($column != $entity->primaryKey()) {
+                    $fields1[] = '`'.$column.'`';
+                    $fields2[] = ':'.$column;
+                }
+            }
+            $query[] = '('.implode(', ', $fields1).')';
+            $query[] = 'VALUES';
+            $query[] = '('.implode(', ', $fields2).')';
+            $stmp = $this->db->prepare(implode(' ', $query));
+            $stmp = $this->bindParams($stmp, $params);
+            $stmp->execute();
+            $entity->{$entity->primaryKey()} = $this->db->lastInsertId();
+        }
+    }
+
+    public function deleteEntity(EntityInterface &$entity)
+    {
+        $primaryValue = $entity->{$entity->primaryKey()};
+        $query = [];
+        $query[] = 'DELETE FROM';
+        $query[] = '`'.$this->tableName.'`';
+        $query[] = 'WHERE `'.$entity->primaryKey().'` = '.$primaryValue;
+        $stmp = $this->db->prepare(implode(' ', $query));
+        $stmp->execute();
+    }
+
+    public function exec(): false|\PDOStatement
+    {
+        $q = $this->buildQuery();
+        $stmp = $this->db->prepare($q);
+        $stmp->setFetchMode(\PDO::FETCH_ASSOC);
+        $stmp = $this->bindParams($stmp, $this->query['params'] ?? []);
+        $stmp->execute();
+
+        return $stmp;
+    }
+
+    public function bindParams(\PDOStatement $stmp, $params): \PDOStatement
+    {
+        foreach ($params as $key => $param) {
             $type = gettype($param);
-            if ($type == "boolean") {
+            if ($type == 'boolean') {
                 $stmp->bindValue($key, $param, \PDO::PARAM_BOOL);
-            } else 
-            if ($type == "NULL" or $type == "unknown type") {
+            } elseif ($type == 'NULL' or $type == 'unknown type') {
                 $stmp->bindValue($key, $param, \PDO::PARAM_NULL);
-            } else 
-            if ($type == "integer") {
+            } elseif ($type == 'integer') {
                 $stmp->bindValue($key, $param, \PDO::PARAM_INT);
             } else {
                 $stmp->bindValue($key, $param);
             }
         }
-        $stmp->execute();
+        // appLog()->error(json_encode($params));
         return $stmp;
     }
 
-    public function executeAssoc(): PDOStatement
+    public function count(): ?int
     {
-        return $this->execute(false);
-    }
+        $this->select(['COUNT(*) as `count_results`']);
+        $this->limit(1);
+        $this->offset(0);
+        $stmp = $this->exec();
+        $result = $stmp->fetch();
 
-    public function setQuery(string $sql): self
-    {
-        $this->query = $sql;
-        return $this;
-    }
-
-    public function setParams(array $params): self
-    {
-        $this->params = $params;
-        return $this;
+        return $result['count_results'] ?? null;
     }
 
     /**
-     * set database
-     *
-     * @param \PDO $db
-     * @return self
+     * Fetch one result from database table.
      */
-    public function setDatasource(\PDO $db): self
+    public function fetch(): EntityInterface|bool
     {
-        $this->db = $db;
+        $this->limit(1);
+        $q = $this->buildQuery();
+        $stmp = $this->db->prepare($q);
+        $stmp->setFetchMode(\PDO::FETCH_CLASS, $this->entityClass);
+        $stmp = $this->bindParams($stmp, $this->query['params'] ?? []);
+        $stmp->execute();
+
+        return $stmp->fetch();
+    }
+
+    /**
+     * fetch all result from database table.
+     *
+     * @return EntityInterface[]
+     */
+    public function fetchAll(): array
+    {
+        $q = $this->buildQuery();
+        $stmp = $this->db->prepare($q);
+        $stmp->setFetchMode(\PDO::FETCH_CLASS, $this->entityClass);
+        $stmp = $this->bindParams($stmp, $this->query['params'] ?? []);
+        $stmp->execute();
+
+        return $stmp->fetchAll();
+    }
+
+    public function buildQuery(): string
+    {
+        $query = [];
+        $query[] = 'SELECT';
+        $query[] = !empty($this->query['select']) ? implode(',', $this->query['select']) : '*';
+        $query[] = 'FROM';
+        $query[] = '`'.$this->tableName.'`';
+        $query[] = 'WHERE';
+        $query[] = !empty($this->query['where']) ? implode(' AND ', $this->query['where']) : '1';
+        $query[] = 'AND (';
+        $query[] = !empty($this->query['or']) ? implode(' OR ', $this->query['or']) : '1';
+        $query[] = ')';
+        $query[] = !empty($this->query['group']) ? 'GROUP BY '.$this->query['group'] : '';
+        $query[] = !empty($this->query['having']) ? 'HAVING '.$this->query['having'] : '';
+        $query[] = !empty($this->query['order']) ? 'ORDER BY '.$this->query['order'] : '';
+        if (!empty($this->query['limit'])) {
+            $query[] = 'LIMIT '.$this->query['limit'];
+            if (!empty($this->query['offset'])) {
+                $query[] = 'OFFSET '.$this->query['offset'];
+            }
+        }
+
+        return implode(' ', $query);
+    }
+
+    public function withParams(array $params): self
+    {
+        $this->query['params'] = $params;
+
         return $this;
     }
 
-    public function getLastInsertId(): int
+    public function getColmuns()
     {
-        return intval($this->db->lastInsertId());
+        if (!empty($this->columns)) {
+            return $this->columns;
+        }
+        $q = 'SHOW COLUMNS FROM `'.$this->tableName.'`';
+        $stmp = $this->db->prepare($q);
+        $stmp->setFetchMode(\PDO::FETCH_ASSOC);
+        $stmp->execute();
+        $results = $stmp->fetchAll();
+        $fields = [];
+        foreach ($results as $key => $value) {
+            $fields[] = $value['Field'];
+        }
+        $this->columns = $fields;
+
+        return $fields;
     }
 
-    public function fetch()
+    public function beginTransaction()
     {
-        return $this->execute()->fetch();
+        $this->db->beginTransaction();
+        $this->processTransaction = true;
     }
 
-    public function fetchAll(): array
+    public function commit()
     {
-        return $this->execute()->fetchAll();
+        $this->db->commit();
+        $this->processTransaction = false;
+    }
+
+    public function rollBack()
+    {
+        $this->db->rollBack();
+        $this->processTransaction = false;
     }
 }
 ?>

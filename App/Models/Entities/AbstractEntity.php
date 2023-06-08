@@ -36,5 +36,10 @@ abstract class AbstractEntity implements EntityInterface
     {
         return [];
     }
+
+    public function primaryKey(): string
+    {
+        return 'id';
+    }
 }
 ?>

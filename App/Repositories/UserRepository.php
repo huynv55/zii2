@@ -1,7 +1,6 @@
 <?php
 namespace App\Repositories;
 
-use App\Models\Users;
 use App\Models\UsersModel;
 
 class UserRepository extends AbstractRepository

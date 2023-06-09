@@ -160,32 +160,6 @@ function db(): \PDO
 }
 
 /**
- * get instance \Scrawler\Arca\Database connection
- * @return \Scrawler\Arca\Database
- */
-function connectionArcaParams() : \Scrawler\Arca\Database
-{
-    if(
-        !empty($GLOBALS[\Scrawler\Arca\Database::class])
-        and
-        $GLOBALS[\Scrawler\Arca\Database::class] instanceof \Scrawler\Arca\Database
-    ) {
-        return $GLOBALS[\Scrawler\Arca\Database::class];
-    }
-    $connectionParams = array(
-        'dbname' => env('MYSQL_DB'),
-        'user' => env('MYSQL_USER', 'root'),
-        'password' => env('MYSQL_PASSWORD', ''),
-        'port' => env('MYSQL_PORT', 3306),
-        'host' => env('MYSQL_HOST', 'localhost'),
-        'driver' => 'pdo_mysql', //You can use other supported driver this is the most basic mysql driver
-    );
-    $db = \Scrawler\Arca\Facade\Database::connect($connectionParams);
-    $GLOBALS[\Scrawler\Arca\Database::class] = $db;
-    return $GLOBALS[\Scrawler\Arca\Database::class];
-}
-
-/**
  * generate csrf_token
  *
  * @return string

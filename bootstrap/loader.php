@@ -18,6 +18,11 @@ class ApplicationLoader
         );
     }
 
+    public static function set(string $class, initializeLoader $instance)
+    {
+        $GLOBALS[$class] = $instance;
+    }
+
     public static function get(string $class): initializeLoader
     {
         if(self::has($class)) {
@@ -42,9 +47,6 @@ class ApplicationLoader
         } else {
             $params = [];
             foreach ($contructor->getParameters() as $key => $param) {
-                /**
-                 * @var ReflectionParameter $params
-                 */
                 $type = $param->getType()->getName();
                 if(class_exists($type)) {
                     $params[] = self::get($type);
@@ -57,6 +59,42 @@ class ApplicationLoader
         }
         $instance?->initialize();
         return $instance;
+    }
+
+    /**
+     * call method by $instance
+     *
+     * @param initializeLoader $instance
+     * @param string $method
+     * @param array $params
+     * @return mixed
+     * 
+     * @throws Exception if method not found in class
+     */
+    public static function call(initializeLoader $instance, string $method, array $params = []): mixed
+    {
+        $class = get_class($instance);
+        if ( method_exists($class, $method) ) {
+            $reflection = new ReflectionMethod($class, $method);
+            $paramsFormMethod = [];
+            foreach ($reflection->getParameters() as $key => $param) {
+                $type = $param->getType()->getName();
+                $name = $param->getName();
+                if(class_exists($type)) {
+                    $paramsFormMethod[$name] = self::get($type);
+                }
+                else if (in_array($param->getName(), $params)) {
+                    $paramsFormMethod[$name] = $params[$name];
+                }
+                else if($param->isOptional()) {
+                    $paramsFormMethod[$name] = $param->getDefaultValue();
+                }
+            }
+            return $reflection->invokeArgs($instance, $paramsFormMethod);
+        } 
+        else {
+            throw new \Exception('Method '.$method.'::'.$class.' not found');
+        }
     }
 
     public static function model(string $modelClass)

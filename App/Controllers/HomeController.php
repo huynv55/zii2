@@ -2,6 +2,7 @@
 namespace App\Controllers;
 
 use App\Repositories\UserRepository;
+use App\Responses\JsonResponse;
 
 class HomeController extends AppController
 {
@@ -23,9 +24,9 @@ class HomeController extends AppController
         $this->render('index');
     }
 
-    public function display()
+    public function display(JsonResponse $response)
     {
-        $this->render('display');
+        return $response->withData(['controller' => 'home', 'action' => 'display', 'message' => 'ok'])->send();
     }
 }
 ?>

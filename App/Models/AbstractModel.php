@@ -120,7 +120,9 @@ abstract class AbstractModel implements initializeLoader
             $stmp = $this->db->prepare(implode(' ', $query));
             $stmp = $this->bindParams($stmp, $params);
             $stmp->execute();
-        } else { // insert entity
+        } 
+        // insert entity
+        else { 
             $params['created_at'] = date('Y-m-d H:i:s');
             $params['updated_at'] = date('Y-m-d H:i:s');
             $fields1 = [];
@@ -169,11 +171,14 @@ abstract class AbstractModel implements initializeLoader
             $type = gettype($param);
             if ($type == 'boolean') {
                 $stmp->bindValue($key, $param, \PDO::PARAM_BOOL);
-            } elseif ($type == 'NULL' or $type == 'unknown type') {
+            } 
+            else if ($type == 'NULL' or $type == 'unknown type') {
                 $stmp->bindValue($key, $param, \PDO::PARAM_NULL);
-            } elseif ($type == 'integer') {
+            } 
+            else if ($type == 'integer') {
                 $stmp->bindValue($key, $param, \PDO::PARAM_INT);
-            } else {
+            } 
+            else {
                 $stmp->bindValue($key, $param);
             }
         }

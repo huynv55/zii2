@@ -26,7 +26,13 @@ class HomeController extends AppController
 
     public function display(JsonResponse $response)
     {
-        return $response->withData(['controller' => 'home', 'action' => 'display', 'message' => 'ok'])->send();
+        $users = $this->repository->getAllUser();
+        return $response->withData([
+            'controller' => 'home',
+            'action' => 'display',
+            'message' => 'ok',
+            'users' => $users
+        ])->send();
     }
 }
 ?>

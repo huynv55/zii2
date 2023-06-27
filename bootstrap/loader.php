@@ -76,24 +76,24 @@ class ApplicationLoader
         $class = get_class($instance);
         if ( method_exists($class, $method) ) {
             $reflection = new ReflectionMethod($class, $method);
-            $paramsFormMethod = [];
+            $paramsInvokeArgs = [];
             foreach ($reflection->getParameters() as $key => $param) {
                 $type = $param->getType()->getName();
                 $name = $param->getName();
                 if(class_exists($type)) {
-                    $paramsFormMethod[$name] = self::get($type);
+                    $paramsInvokeArgs[$name] = self::get($type);
                 }
                 else if (in_array($param->getName(), $params)) {
-                    $paramsFormMethod[$name] = $params[$name];
+                    $paramsInvokeArgs[$name] = $params[$name];
                 }
                 else if($param->isOptional()) {
-                    $paramsFormMethod[$name] = $param->getDefaultValue();
+                    $paramsInvokeArgs[$name] = $param->getDefaultValue();
                 }
             }
-            return $reflection->invokeArgs($instance, $paramsFormMethod);
+            return $reflection->invokeArgs($instance, $paramsInvokeArgs);
         } 
         else {
-            throw new \Exception('Method '.$method.'::'.$class.' not found');
+            throw new \Exception('Method '.$class.'::'.$method.' not found');
         }
     }
 

@@ -8,24 +8,29 @@ use Psr\Http\Message\UriInterface;
 
 class Request implements initializeLoader, ServerRequestInterface
 {
+    protected string $requestTarget = '/';
+    protected string $uri = '/';
+    protected string $method = 'GET';
+    protected array $headers = [];
+    protected string $protocalVersion = '1.0';
+
+    public function __construct()
+    {
+        foreach ($_SERVER as $key => $value) {
+            if (strpos($key, 'HTTP_') === 0) {
+                $this->headers[str_replace(' ', '', ucwords(str_replace('_', ' ', strtolower(substr($key, 5)))))] = $value;
+            }
+        }
+        $this->method   = $_SERVER['REQUEST_METHOD'];
+        $this->uri      = $_SERVER['REQUEST_URI'];
+        return $this;
+    }
+
     public function initialize()
     {
         
     }
 
-    /**
-     * Return an instance with the specified message body.
-     *
-     * The body MUST be a StreamInterface object.
-     *
-     * This method MUST be implemented in such a way as to retain the
-     * immutability of the message, and MUST return a new instance that has the
-     * new body stream.
-     *
-     * @param StreamInterface $body Body.
-     * @return static
-     * @throws \InvalidArgumentException When the body is not valid.
-     */
     public function withBody(StreamInterface $body)
     {
 
@@ -34,11 +39,11 @@ class Request implements initializeLoader, ServerRequestInterface
     /**
      * Gets the body of the message.
      *
-     * @return StreamInterface Returns the body as a stream.
+     * @return post data as array.
      */
     public function getBody()
     {
-
+        return $_POST;
     }
 
     /**
@@ -96,7 +101,8 @@ class Request implements initializeLoader, ServerRequestInterface
      */
     public function withHeader(string $name, $value)
     {
-
+        $this->headers[$name] = $value;
+        return $this;
     }
 
     /**
@@ -120,7 +126,12 @@ class Request implements initializeLoader, ServerRequestInterface
      */
     public function getHeaderLine(string $name)
     {
-
+        if ($this->hasHeader($name)) {
+            return $name.': '.$this->getHeader($name);
+        }
+        else {
+            return '';
+        }
     }
 
     /**
@@ -133,13 +144,11 @@ class Request implements initializeLoader, ServerRequestInterface
      * empty array.
      *
      * @param string $name Case-insensitive header field name.
-     * @return string[] An array of string values as provided for the given
-     *    header. If the header does not appear in the message, this method MUST
-     *    return an empty array.
+     * @return mixed
      */
     public function getHeader(string $name)
     {
-
+        return $this->headers[$name] ?? null;
     }
 
     /**
@@ -152,7 +161,7 @@ class Request implements initializeLoader, ServerRequestInterface
      */
     public function hasHeader(string $name)
     {
-
+        return isset($this->headers[$name]);
     }
 
     /**
@@ -182,7 +191,7 @@ class Request implements initializeLoader, ServerRequestInterface
      */
     public function getHeaders()
     {
-
+        return $this->headers;
     }
 
     /**
@@ -212,7 +221,7 @@ class Request implements initializeLoader, ServerRequestInterface
      */
     public function getProtocolVersion()
     {
-
+        return $this->protocalVersion;
     }
 
     /**
@@ -233,7 +242,7 @@ class Request implements initializeLoader, ServerRequestInterface
      */
     public function getRequestTarget()
     {
-
+        return $this->requestTarget;
     }
 
     /**
@@ -255,7 +264,7 @@ class Request implements initializeLoader, ServerRequestInterface
      */
     public function withRequestTarget(string $requestTarget)
     {
-
+        $this->requestTarget = $requestTarget;
     }
 
     /**
@@ -265,7 +274,7 @@ class Request implements initializeLoader, ServerRequestInterface
      */
     public function getMethod()
     {
-
+        return $this->method;
     }
 
     /**
@@ -285,21 +294,19 @@ class Request implements initializeLoader, ServerRequestInterface
      */
     public function withMethod(string $method)
     {
-
+        $this->method = strtoupper($method);
+        return $this;
     }
 
     /**
      * Retrieves the URI instance.
      *
-     * This method MUST return a UriInterface instance.
-     *
      * @link http://tools.ietf.org/html/rfc3986#section-4.3
-     * @return UriInterface Returns a UriInterface instance
-     *     representing the URI of the request.
+     * @return representing the URI of the request.
      */
     public function getUri()
     {
-
+        return $this->uri;
     }
 
     /**
@@ -348,7 +355,7 @@ class Request implements initializeLoader, ServerRequestInterface
      */
     public function getServerParams()
     {
-        
+        return array_merge($_ENV, $_SERVER);
     }
 
     /**
@@ -356,14 +363,11 @@ class Request implements initializeLoader, ServerRequestInterface
      *
      * Retrieves cookies sent by the client to the server.
      *
-     * The data MUST be compatible with the structure of the $_COOKIE
-     * superglobal.
-     *
      * @return array
      */
     public function getCookieParams()
     {
-
+        return $_COOKIE;
     }
 
     /**
@@ -385,7 +389,7 @@ class Request implements initializeLoader, ServerRequestInterface
      */
     public function withCookieParams(array $cookies)
     {
-
+        return $this;
     }
 
     /**
@@ -393,35 +397,15 @@ class Request implements initializeLoader, ServerRequestInterface
      *
      * Retrieves the deserialized query string arguments, if any.
      *
-     * Note: the query params might not be in sync with the URI or server
-     * params. If you need to ensure you are only getting the original
-     * values, you may need to parse the query string from `getUri()->getQuery()`
-     * or from the `QUERY_STRING` server param.
-     *
      * @return array
      */
     public function getQueryParams()
     {
-
+        return $_GET;
     }
 
     /**
      * Return an instance with the specified query string arguments.
-     *
-     * These values SHOULD remain immutable over the course of the incoming
-     * request. They MAY be injected during instantiation, such as from PHP's
-     * $_GET superglobal, or MAY be derived from some other value such as the
-     * URI. In cases where the arguments are parsed from the URI, the data
-     * MUST be compatible with what PHP's parse_str() would return for
-     * purposes of how duplicate query parameters are handled, and how nested
-     * sets are handled.
-     *
-     * Setting query string arguments MUST NOT change the URI stored by the
-     * request, nor the values in the server params.
-     *
-     * This method MUST be implemented in such a way as to retain the
-     * immutability of the message, and MUST return an instance that has the
-     * updated query string arguments.
      *
      * @param array $query Array of query string arguments, typically from
      *     $_GET.
@@ -429,24 +413,21 @@ class Request implements initializeLoader, ServerRequestInterface
      */
     public function withQueryParams(array $query)
     {
-
+        foreach($query as $key => $value) {
+            $_GET[$key] = $value;
+        }
+        return $this;
     }
 
     /**
      * Retrieve normalized file upload data.
      *
-     * This method returns upload metadata in a normalized tree, with each leaf
-     * an instance of Psr\Http\Message\UploadedFileInterface.
-     *
-     * These values MAY be prepared from $_FILES or the message body during
-     * instantiation, or MAY be injected via withUploadedFiles().
-     *
-     * @return array An array tree of UploadedFileInterface instances; an empty
+     * @return array An array tree of UploadedFile instances; an empty
      *     array MUST be returned if no data is present.
      */
     public function getUploadedFiles()
     {
-
+        return $_FILES;
     }
 
     /**
@@ -462,27 +443,23 @@ class Request implements initializeLoader, ServerRequestInterface
      */
     public function withUploadedFiles(array $uploadedFiles)
     {
-
+        foreach($uploadedFiles as $key => $value) {
+            $_FILES[$key] = $value;
+        }
+        return $this;
     }
 
-    /**
-     * Retrieve any parameters provided in the request body.
-     *
-     * If the request Content-Type is either application/x-www-form-urlencoded
-     * or multipart/form-data, and the request method is POST, this method MUST
-     * return the contents of $_POST.
-     *
-     * Otherwise, this method may return any results of deserializing
-     * the request body content; as parsing returns structured content, the
-     * potential types MUST be arrays or objects only. A null value indicates
-     * the absence of body content.
-     *
-     * @return null|array|object The deserialized body parameters, if any.
-     *     These will typically be an array or object.
-     */
     public function getParsedBody()
     {
-
+        $json = file_get_contents('php://input');
+        if (!empty($json)) {
+            // Converts it into a PHP object
+            $json_data = json_decode($json, true);
+            if (!empty($json_data)) {
+                return $json_data;
+            }
+        }
+        return [];
     }
 
     /**
@@ -515,7 +492,10 @@ class Request implements initializeLoader, ServerRequestInterface
      */
     public function withParsedBody($data)
     {
-
+        foreach($data as $key => $value) {
+            $_POST[$key] = $value;
+        }
+        return $this;
     }
 
     /**
@@ -531,7 +511,7 @@ class Request implements initializeLoader, ServerRequestInterface
      */
     public function getAttributes()
     {
-
+        return $GLOBALS;
     }
 
     /**
@@ -551,7 +531,7 @@ class Request implements initializeLoader, ServerRequestInterface
      */
     public function getAttribute(string $name, $default = null)
     {
-
+        return $GLOBALS[$name] ?? $default;
     }
 
     /**
@@ -571,7 +551,8 @@ class Request implements initializeLoader, ServerRequestInterface
      */
     public function withAttribute(string $name, $value)
     {
-
+        $GLOBALS[$name] = $value;
+        return $this;
     }
 
     /**
@@ -590,7 +571,8 @@ class Request implements initializeLoader, ServerRequestInterface
      */
     public function withoutAttribute(string $name)
     {
-
+        if(isset($GLOBALS[$name])) unset($GLOBALS[$name]);
+        return $this;
     }
 }
 ?>

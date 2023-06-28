@@ -7,6 +7,19 @@ use function FastRoute\simpleDispatcher;
 class ZiiAppFramework {
     protected ?Dispatcher $dispatcher = null;
 
+    protected string $controller = "";
+    protected string $action = "";
+    protected array $middlewares = [];
+
+    public function __construct()
+    {
+        $this->controller = "HomeController";
+        $this->action = "index";
+        $this->middlewares = [
+            // middlewares for all router
+        ];
+    }
+
     protected function router() : Dispatcher
     {
         if (is_null($this->dispatcher)) {
@@ -19,18 +32,18 @@ class ZiiAppFramework {
     protected function dispatchCli(): array
     {
         $path = $GLOBALS['argv'];
-        $controller = 'AppConsole';
+        $this->controller = 'AppConsole';
         if (!empty($path[1])) {
-            $controller = ucwords($path[1], "_").'Console';
+            $this->controller = ucwords($path[1], "_").'Console';
         }
-        $action = $path[2] ?? 'index';
+        $this->action = $path[2] ?? 'index';
         $params = [];
         if(count($path) > 3) {
             for ($i = 3; $i < count($path); $i++) {
                 $params[] = $path[$i];
             }
         }
-        $controller = 'Console\\'.$controller;
+        $controller = 'Console\\'.$this->controller;
         $routeInfo = compact('controller', 'action', 'params');
         $GLOBALS['routeInfo'] = $routeInfo;
         return $routeInfo;
@@ -73,8 +86,9 @@ class ZiiAppFramework {
                 if(is_callable($routeInfoDispatch[1])) {
                     $info = call_user_func_array($routeInfoDispatch[1], $routeInfoDispatch[2] ?? []);
                 } else if (is_array($routeInfoDispatch[1])) {
-                    $info['controller'] = $routeInfoDispatch[1][0] ?? 'HomeController';
-                    $info['action'] = $routeInfoDispatch[1][1] ?? 'index';
+                    $info['controller'] = $routeInfoDispatch[1]['controller'] ?? 'HomeController';
+                    $info['action'] = $routeInfoDispatch[1]['action'] ?? 'index';
+                    $info['middlewares'] = $routeInfoDispatch[1]['middlewares'] ?? [];
                 } else if (is_string($routeInfoDispatch[1])) {
                     $tmp = explode('@', $routeInfoDispatch[1]);
                     $info['controller'] = $tmp[0] ?? 'HomeController';
@@ -87,6 +101,14 @@ class ZiiAppFramework {
                 // default action 
                 break;
         }
+        $this->controller = $routeInfo['controller'];
+        $this->action = $routeInfo['action'];
+        foreach($routeInfo['middlewares'] as $middleware) {
+            if (!in_array($middleware , $this->middlewares)) {
+                $this->middlewares[] = $middleware;
+            }
+        }
+        $routeInfo['middlewares'] = $this->middlewares;
         return $routeInfo;
     }
 
@@ -129,6 +151,13 @@ class ZiiAppFramework {
         return $run;
     }
 
+    private function processMiddlewares(array $middlewares)
+    {
+        if(!empty($middlewares) and is_array($middlewares)) {
+            
+        }
+    }
+
     /**
      * return response from router dispatch
      *
@@ -137,10 +166,22 @@ class ZiiAppFramework {
      */
     private function makeResponse(array $routeInfo)
     {
+        $this->processMiddlewares($routeInfo['middlewares'] ?? []);
         $controller = ApplicationLoader::controller($routeInfo['controller']);
         ApplicationLoader::call($controller, $routeInfo['action'], $routeInfo['params']);
     }
 }
 
-return new ZiiAppFramework();
+$GLOBALS[ZiiAppFramework::class] = new ZiiAppFramework();
+
+/**
+ * get instance ZiiAppFramework
+ * @return ZiiAppFramework
+ */
+function app() : ZiiAppFramework
+{
+    return $GLOBALS[ZiiAppFramework::class];
+}
+
+return $GLOBALS[ZiiAppFramework::class];
 ?>
